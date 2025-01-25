@@ -72,13 +72,16 @@ export const BetList = ({ user }: BetListProps) => {
         <BetCard
           key={bet.id}
           bet={{
-            ...bet,
-            endTime: new Date(bet.end_time),
+            id: bet.id,
+            eventName: bet.event_name,
             optionA: bet.option_a,
             optionB: bet.option_b,
             poolA: bet.pool_a,
             poolB: bet.pool_b,
+            endTime: new Date(bet.end_time),
             isResolved: bet.is_resolved,
+            winner: bet.winner,
+            createdBy: bet.created_by
           }}
           user={user}
         />
