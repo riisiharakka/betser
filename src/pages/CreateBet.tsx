@@ -12,7 +12,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
 const createBetSchema = z.object({
@@ -40,6 +40,18 @@ const CreateBet = () => {
 
   const onSubmit = async (data: CreateBetForm) => {
     try {
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError || !sessionData.session) {
+        toast({
+          title: "Error",
+          description: "You must be logged in to create a bet",
+          variant: "destructive",
+        });
+        navigate("/auth");
+        return;
+      }
+
       const { error } = await supabase.from("bets").insert({
         event_name: data.eventName,
         option_a: data.optionA,
@@ -48,6 +60,7 @@ const CreateBet = () => {
         pool_a: 0,
         pool_b: 0,
         is_resolved: false,
+        created_by: sessionData.session.user.id,
       });
 
       if (error) throw error;
