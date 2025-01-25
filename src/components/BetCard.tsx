@@ -5,6 +5,8 @@ import { calculateOdds, formatOdds } from "@/lib/utils/odds";
 import { useToast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
 import type { User } from "@supabase/supabase-js";
+import { supabase } from "@/integrations/supabase/client";
+import { useState } from "react";
 
 interface BetCardProps {
   bet: Bet;
@@ -14,12 +16,13 @@ interface BetCardProps {
 export const BetCard = ({ bet, user }: BetCardProps) => {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const [isPlacingBet, setIsPlacingBet] = useState(false);
   const { oddsA, oddsB } = calculateOdds(bet.poolA, bet.poolB);
   const totalPool = bet.poolA + bet.poolB;
   const timeLeft = new Date(bet.endTime).getTime() - new Date().getTime();
   const isActive = timeLeft > 0;
 
-  const handleBetClick = () => {
+  const handleBetClick = async (option: 'A' | 'B') => {
     if (!user) {
       toast({
         title: "Authentication Required",
@@ -28,7 +31,39 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
       navigate("/auth");
       return;
     }
-    // ... handle bet placement logic when implemented
+
+    if (isPlacingBet) return;
+
+    try {
+      setIsPlacingBet(true);
+      // For now, we'll use a fixed amount of 10 for testing
+      const betAmount = 10;
+      
+      const { error } = await supabase
+        .from('bet_placements')
+        .insert({
+          bet_id: bet.id,
+          user_id: user.id,
+          option: option === 'A' ? bet.optionA : bet.optionB,
+          amount: betAmount
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Bet Placed Successfully",
+        description: `You bet $${betAmount} on ${option === 'A' ? bet.optionA : bet.optionB}`,
+      });
+    } catch (error) {
+      console.error('Error placing bet:', error);
+      toast({
+        title: "Error",
+        description: "Failed to place bet. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsPlacingBet(false);
+    }
   };
 
   return (
@@ -46,8 +81,8 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
             </div>
             <Button
               className="mt-2 w-full"
-              onClick={handleBetClick}
-              disabled={!isActive}
+              onClick={() => handleBetClick('A')}
+              disabled={!isActive || isPlacingBet}
             >
               {bet.optionA}
             </Button>
@@ -60,8 +95,8 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
             </div>
             <Button
               className="mt-2 w-full"
-              onClick={handleBetClick}
-              disabled={!isActive}
+              onClick={() => handleBetClick('B')}
+              disabled={!isActive || isPlacingBet}
             >
               {bet.optionB}
             </Button>
