@@ -62,16 +62,30 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
         return;
       }
 
-      const { error } = await supabase
+      // Start a transaction to update both tables
+      const { data: betPlacement, error: placementError } = await supabase
         .from('bet_placements')
         .insert({
           bet_id: bet.id,
           user_id: user.id,
           option: selectedOption,
           amount: amount
-        });
+        })
+        .select()
+        .single();
 
-      if (error) throw error;
+      if (placementError) throw placementError;
+
+      // Update the pool amount in the bets table
+      const { error: updateError } = await supabase
+        .from('bets')
+        .update({
+          pool_a: selectedOption === 'A' ? bet.poolA + amount : bet.poolA,
+          pool_b: selectedOption === 'B' ? bet.poolB + amount : bet.poolB,
+        })
+        .eq('id', bet.id);
+
+      if (updateError) throw updateError;
 
       toast({
         title: "Bet Placed Successfully",
