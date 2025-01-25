@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { ArrowLeft } from "lucide-react";
 
 export default function Auth() {
   const [isLoading, setIsLoading] = useState(false);
@@ -57,7 +58,15 @@ export default function Auth() {
   };
 
   return (
-    <div className="container max-w-md mx-auto py-8">
+    <div className="container max-w-md mx-auto py-8 relative">
+      <Button
+        variant="ghost"
+        className="absolute left-0 top-0 flex items-center gap-2"
+        onClick={() => navigate("/")}
+      >
+        <ArrowLeft className="h-4 w-4" />
+        Back
+      </Button>
       <Card>
         <CardHeader>
           <CardTitle>{isLogin ? "Login" : "Sign Up"}</CardTitle>
