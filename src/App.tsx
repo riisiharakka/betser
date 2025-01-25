@@ -1,26 +1,20 @@
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Navbar } from "./components/Navbar";
+import { User } from "@supabase/supabase-js";
+import { supabase } from "./integrations/supabase/client";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
-import { supabase } from "./integrations/supabase/client";
-import type { User } from "@supabase/supabase-js";
+import CreateBet from "./pages/CreateBet";
+import { Navbar } from "./components/Navbar";
 
-const queryClient = new QueryClient();
-
-const App = () => {
+function App() {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check current auth status
+    // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
-      setLoading(false);
     });
 
     // Listen for auth changes
@@ -33,30 +27,17 @@ const App = () => {
     return () => subscription.unsubscribe();
   }, []);
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <div className="min-h-screen bg-background">
-            <Navbar user={user} />
-            <Routes>
-              <Route path="/" element={<Index user={user} />} />
-              <Route
-                path="/auth"
-                element={user ? <Navigate to="/" replace /> : <Auth />}
-              />
-            </Routes>
-          </div>
-        </BrowserRouter>
-      </TooltipProvider>
-    </QueryClientProvider>
+    <Router>
+      <Navbar user={user} />
+      <Routes>
+        <Route path="/" element={<Index user={user} />} />
+        <Route path="/auth" element={<Auth />} />
+        <Route path="/create-bet" element={<CreateBet />} />
+      </Routes>
+      <Toaster />
+    </Router>
   );
-};
+}
 
 export default App;

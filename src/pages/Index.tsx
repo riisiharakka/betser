@@ -21,7 +21,7 @@ const Index = ({ user }: IndexProps) => {
       navigate("/auth");
       return;
     }
-    // ... handle create bet logic when implemented
+    navigate("/create-bet");
   };
 
   return (
