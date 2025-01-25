@@ -44,7 +44,7 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
         .insert({
           bet_id: bet.id,
           user_id: user.id,
-          option: option === 'A' ? bet.optionA : bet.optionB,
+          option: option, // Just send 'A' or 'B' instead of the full text
           amount: betAmount
         });
 
