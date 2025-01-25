@@ -74,7 +74,7 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
 
       toast({
         title: "Bet Placed Successfully",
-        description: `You bet $${amount} on ${selectedOption === 'A' ? bet.optionA : bet.optionB}`,
+        description: `You bet €${amount} on ${selectedOption === 'A' ? bet.optionA : bet.optionB}`,
       });
       setDialogOpen(false);
     } catch (error) {
@@ -128,7 +128,7 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
           </div>
           
           <div className="mt-4 flex justify-between text-sm text-muted-foreground">
-            <div>Total Pool: ${totalPool.toFixed(2)}</div>
+            <div>Total Pool: €{totalPool.toFixed(2)}</div>
             <div>
               {isActive
                 ? `Ends in ${Math.ceil(timeLeft / (1000 * 60))} minutes`
@@ -145,7 +145,7 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
           </DialogHeader>
           <div className="py-4">
             <label htmlFor="betAmount" className="text-sm font-medium mb-2 block">
-              Bet Amount ($)
+              Bet Amount (€)
             </label>
             <Input
               id="betAmount"
