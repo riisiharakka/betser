@@ -1,15 +1,27 @@
 import { Button } from "@/components/ui/button";
 import { BetList } from "@/components/BetList";
 import { useToast } from "@/components/ui/use-toast";
+import { useNavigate } from "react-router-dom";
+import type { User } from "@supabase/supabase-js";
 
-const Index = () => {
+interface IndexProps {
+  user: User | null;
+}
+
+const Index = ({ user }: IndexProps) => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   
   const handleCreateBet = () => {
-    toast({
-      title: "Authentication Required",
-      description: "Please log in to create a bet.",
-    });
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to create a bet.",
+      });
+      navigate("/auth");
+      return;
+    }
+    // ... handle create bet logic when implemented
   };
 
   return (
@@ -31,7 +43,7 @@ const Index = () => {
           </Button>
         </div>
         
-        <BetList />
+        <BetList user={user} />
       </div>
     </div>
   );

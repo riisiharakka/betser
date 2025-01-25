@@ -3,23 +3,32 @@ import { Button } from "@/components/ui/button";
 import { Bet } from "@/lib/types";
 import { calculateOdds, formatOdds } from "@/lib/utils/odds";
 import { useToast } from "@/components/ui/use-toast";
+import { useNavigate } from "react-router-dom";
+import type { User } from "@supabase/supabase-js";
 
 interface BetCardProps {
   bet: Bet;
+  user: User | null;
 }
 
-export const BetCard = ({ bet }: BetCardProps) => {
+export const BetCard = ({ bet, user }: BetCardProps) => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const { oddsA, oddsB } = calculateOdds(bet.poolA, bet.poolB);
   const totalPool = bet.poolA + bet.poolB;
   const timeLeft = new Date(bet.endTime).getTime() - new Date().getTime();
   const isActive = timeLeft > 0;
 
   const handleBetClick = () => {
-    toast({
-      title: "Authentication Required",
-      description: "Please log in to place a bet.",
-    });
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to place a bet.",
+      });
+      navigate("/auth");
+      return;
+    }
+    // ... handle bet placement logic when implemented
   };
 
   return (

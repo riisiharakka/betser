@@ -46,7 +46,7 @@ const App = () => {
           <div className="min-h-screen bg-background">
             <Navbar user={user} />
             <Routes>
-              <Route path="/" element={<Index />} />
+              <Route path="/" element={<Index user={user} />} />
               <Route
                 path="/auth"
                 element={user ? <Navigate to="/" replace /> : <Auth />}

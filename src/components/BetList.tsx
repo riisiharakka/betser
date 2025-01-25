@@ -1,5 +1,10 @@
 import { Bet } from "@/lib/types";
 import { BetCard } from "./BetCard";
+import type { User } from "@supabase/supabase-js";
+
+interface BetListProps {
+  user: User | null;
+}
 
 // Sample data for demonstration
 const SAMPLE_BETS: Bet[] = [
@@ -27,11 +32,11 @@ const SAMPLE_BETS: Bet[] = [
   }
 ];
 
-export const BetList = () => {
+export const BetList = ({ user }: BetListProps) => {
   return (
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
       {SAMPLE_BETS.map((bet) => (
-        <BetCard key={bet.id} bet={bet} />
+        <BetCard key={bet.id} bet={bet} user={user} />
       ))}
     </div>
   );
