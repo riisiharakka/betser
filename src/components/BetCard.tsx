@@ -36,7 +36,6 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
 
     try {
       setIsPlacingBet(true);
-      // For now, we'll use a fixed amount of 10 for testing
       const betAmount = 10;
       
       const { error } = await supabase
@@ -44,7 +43,7 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
         .insert({
           bet_id: bet.id,
           user_id: user.id,
-          option: option, // Just send 'A' or 'B' instead of the full text
+          option: option,
           amount: betAmount
         });
 
