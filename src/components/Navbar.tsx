@@ -1,16 +1,23 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import type { User } from "@supabase/supabase-js";
 
-export const Navbar = () => {
+interface NavbarProps {
+  user: User | null;
+}
+
+export const Navbar = ({ user }: NavbarProps) => {
   const { toast } = useToast();
-  const isLoggedIn = false; // TODO: Replace with actual auth state
 
-  const handleAuthClick = () => {
-    if (!isLoggedIn) {
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
       toast({
-        title: "Authentication required",
-        description: "Please log in or create an account to continue.",
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
       });
     }
   };
@@ -29,18 +36,20 @@ export const Navbar = () => {
             </Button>
           </Link>
           
-          {isLoggedIn ? (
+          {user ? (
             <>
               <Link to="/profile">
                 <Button variant="ghost" className="text-white hover:text-primary-foreground">
                   Profile
                 </Button>
               </Link>
-              <Button variant="secondary">Logout</Button>
+              <Button variant="secondary" onClick={handleLogout}>
+                Logout
+              </Button>
             </>
           ) : (
             <Link to="/auth">
-              <Button variant="secondary" onClick={handleAuthClick}>
+              <Button variant="secondary">
                 Login / Register
               </Button>
             </Link>

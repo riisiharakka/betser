@@ -9,7 +9,107 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      bet_placements: {
+        Row: {
+          amount: number
+          bet_id: string
+          created_at: string
+          id: string
+          option: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          bet_id: string
+          created_at?: string
+          id?: string
+          option: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          bet_id?: string
+          created_at?: string
+          id?: string
+          option?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bet_placements_bet_id_fkey"
+            columns: ["bet_id"]
+            isOneToOne: false
+            referencedRelation: "bets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bets: {
+        Row: {
+          created_at: string
+          created_by: string
+          end_time: string
+          event_name: string
+          id: string
+          is_resolved: boolean
+          option_a: string
+          option_b: string
+          pool_a: number
+          pool_b: number
+          updated_at: string
+          winner: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          end_time: string
+          event_name: string
+          id?: string
+          is_resolved?: boolean
+          option_a: string
+          option_b: string
+          pool_a?: number
+          pool_b?: number
+          updated_at?: string
+          winner?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          end_time?: string
+          event_name?: string
+          id?: string
+          is_resolved?: boolean
+          option_a?: string
+          option_b?: string
+          pool_a?: number
+          pool_b?: number
+          updated_at?: string
+          winner?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          id: string
+          updated_at: string
+          username: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          updated_at?: string
+          username: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          updated_at?: string
+          username?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
