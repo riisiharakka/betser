@@ -7,6 +7,10 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import CreateBet from "./pages/CreateBet";
 import { Navbar } from "./components/Navbar";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+// Create a client
+const queryClient = new QueryClient();
 
 function App() {
   const [user, setUser] = useState<User | null>(null);
@@ -28,15 +32,17 @@ function App() {
   }, []);
 
   return (
-    <Router>
-      <Navbar user={user} />
-      <Routes>
-        <Route path="/" element={<Index user={user} />} />
-        <Route path="/auth" element={<Auth />} />
-        <Route path="/create-bet" element={<CreateBet />} />
-      </Routes>
-      <Toaster />
-    </Router>
+    <QueryClientProvider client={queryClient}>
+      <Router>
+        <Navbar user={user} />
+        <Routes>
+          <Route path="/" element={<Index user={user} />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/create-bet" element={<CreateBet />} />
+        </Routes>
+        <Toaster />
+      </Router>
+    </QueryClientProvider>
   );
 }
 
