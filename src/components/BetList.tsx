@@ -1,42 +1,87 @@
 import { Bet } from "@/lib/types";
 import { BetCard } from "./BetCard";
 import type { User } from "@supabase/supabase-js";
+import { useBets } from "@/hooks/useBets";
+import { useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface BetListProps {
   user: User | null;
 }
 
-// Sample data for demonstration
-const SAMPLE_BETS: Bet[] = [
-  {
-    id: "1",
-    eventName: "Coin Flip #1",
-    optionA: "Heads",
-    optionB: "Tails",
-    poolA: 100,
-    poolB: 200,
-    endTime: new Date(Date.now() + 1000 * 60 * 30), // 30 minutes from now
-    isResolved: false,
-    createdBy: "system"
-  },
-  {
-    id: "2",
-    eventName: "Daily Dice Roll",
-    optionA: "Even",
-    optionB: "Odd",
-    poolA: 500,
-    poolB: 500,
-    endTime: new Date(Date.now() + 1000 * 60 * 60), // 1 hour from now
-    isResolved: false,
-    createdBy: "system"
-  }
-];
-
 export const BetList = ({ user }: BetListProps) => {
+  const queryClient = useQueryClient();
+  const { data: bets, isLoading, error } = useBets();
+
+  useEffect(() => {
+    // Subscribe to real-time updates
+    const channel = supabase
+      .channel("schema-db-changes")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "bets",
+        },
+        () => {
+          // Invalidate and refetch bets when there's a change
+          queryClient.invalidateQueries({ queryKey: ["bets"] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
+
+  if (isLoading) {
+    return (
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {[1, 2, 3].map((i) => (
+          <div
+            key={i}
+            className="h-64 bg-secondary/10 rounded-lg animate-pulse"
+          />
+        ))}
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center text-destructive">
+        Error loading bets. Please try again later.
+      </div>
+    );
+  }
+
+  if (!bets?.length) {
+    return (
+      <div className="text-center text-muted-foreground">
+        No bets available at the moment.
+      </div>
+    );
+  }
+
   return (
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-      {SAMPLE_BETS.map((bet) => (
-        <BetCard key={bet.id} bet={bet} user={user} />
+      {bets.map((bet) => (
+        <BetCard
+          key={bet.id}
+          bet={{
+            ...bet,
+            endTime: new Date(bet.end_time),
+            optionA: bet.option_a,
+            optionB: bet.option_b,
+            poolA: bet.pool_a,
+            poolB: bet.pool_b,
+            isResolved: bet.is_resolved,
+          }}
+          user={user}
+        />
       ))}
     </div>
   );

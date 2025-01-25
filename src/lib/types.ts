@@ -7,21 +7,22 @@ export interface Bet {
   poolB: number;
   endTime: Date;
   isResolved: boolean;
-  winner?: 'A' | 'B';
+  winner?: string | null;
   createdBy: string;
 }
 
-export interface User {
-  id: string;
-  username: string;
-  email: string;
-  isAdmin: boolean;
-}
-
 export interface BetPlacement {
+  id: string;
   betId: string;
   userId: string;
-  option: 'A' | 'B';
+  option: string;
   amount: number;
-  timestamp: Date;
+  createdAt: Date;
+}
+
+export interface Profile {
+  id: string;
+  username: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
