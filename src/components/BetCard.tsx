@@ -37,6 +37,7 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
         <CardTitle className="text-xl font-bold">{bet.eventName}</CardTitle>
       </CardHeader>
       <CardContent>
+        <div className="text-center mb-2">Bet on</div>
         <div className="grid grid-cols-2 gap-4">
           <div className="text-center p-4 bg-secondary/10 rounded-lg">
             <div className="font-semibold mb-2">{bet.optionA}</div>
@@ -48,7 +49,7 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
               onClick={handleBetClick}
               disabled={!isActive}
             >
-              Bet on {bet.optionA}
+              {bet.optionA}
             </Button>
           </div>
           
@@ -62,7 +63,7 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
               onClick={handleBetClick}
               disabled={!isActive}
             >
-              Bet on {bet.optionB}
+              {bet.optionB}
             </Button>
           </div>
         </div>
