@@ -115,7 +115,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      place_bet: {
+        Args: {
+          p_bet_id: string
+          p_user_id: string
+          p_option: string
+          p_amount: number
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
