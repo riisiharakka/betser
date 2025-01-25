@@ -1,12 +1,14 @@
 export const calculateOdds = (poolA: number, poolB: number) => {
   const totalPool = poolA + poolB;
   
-  if (totalPool === 0) {
-    return { oddsA: 2, oddsB: 2 }; // Default even odds
+  // If either pool is empty, return default odds of 2
+  if (poolA === 0 || poolB === 0) {
+    return { oddsA: 2, oddsB: 2 };
   }
 
-  const oddsA = totalPool / poolA || 2;
-  const oddsB = totalPool / poolB || 2;
+  // Calculate odds based on pool ratios
+  const oddsA = totalPool / poolA;
+  const oddsB = totalPool / poolB;
 
   return {
     oddsA: Number(oddsA.toFixed(2)),
