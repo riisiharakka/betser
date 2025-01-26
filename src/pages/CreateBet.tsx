@@ -19,24 +19,15 @@ const createBetSchema = z.object({
   eventName: z.string().min(1, "Event name is required"),
   optionA: z.string().min(1, "Option A is required"),
   optionB: z.string().min(1, "Option B is required"),
-  days: z.string()
-    .transform((val) => parseInt(val) || 0)
-    .refine((val) => val >= 0, "Days must be 0 or greater"),
-  hours: z.string()
-    .transform((val) => parseInt(val) || 0)
-    .refine((val) => val >= 0 && val <= 23, "Hours must be between 0 and 23"),
-  minutes: z.string()
-    .transform((val) => parseInt(val) || 0)
-    .refine((val) => val >= 0 && val <= 59, "Minutes must be between 0 and 59"),
-}).refine((data) => {
-  const now = new Date();
-  const endTime = new Date(now.getTime() + 
-    (data.days * 24 * 60 * 60 * 1000) + 
-    (data.hours * 60 * 60 * 1000) + 
-    (data.minutes * 60 * 1000)
-  );
-  return endTime > now;
-}, "End time must be in the future");
+  endTime: z
+    .string()
+    .min(1, "End time is required")
+    .refine((date) => {
+      const selectedDate = new Date(date);
+      const now = new Date();
+      return selectedDate > now;
+    }, "End time must be in the future"),
+});
 
 type CreateBetForm = z.infer<typeof createBetSchema>;
 
@@ -50,9 +41,7 @@ const CreateBet = () => {
       eventName: "",
       optionA: "",
       optionB: "",
-      days: "0",
-      hours: "0",
-      minutes: "0",
+      endTime: "",
     },
   });
 
@@ -70,18 +59,11 @@ const CreateBet = () => {
         return;
       }
 
-      const now = new Date();
-      const endTime = new Date(now.getTime() + 
-        (data.days * 24 * 60 * 60 * 1000) + 
-        (data.hours * 60 * 60 * 1000) + 
-        (data.minutes * 60 * 1000)
-      );
-
       const { error } = await supabase.from("bets").insert({
         event_name: data.eventName,
         option_a: data.optionA,
         option_b: data.optionB,
-        end_time: endTime.toISOString(),
+        end_time: new Date(data.endTime).toISOString(),
         pool_a: 0,
         pool_b: 0,
         is_resolved: false,
@@ -159,66 +141,35 @@ const CreateBet = () => {
               )}
             />
 
-            <div className="grid grid-cols-3 gap-4">
-              <FormField
-                control={form.control}
-                name="days"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Days</FormLabel>
-                    <FormControl>
-                      <Input 
-                        type="number" 
-                        min="0"
-                        placeholder="Days"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="hours"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Hours</FormLabel>
-                    <FormControl>
-                      <Input 
-                        type="number" 
-                        min="0"
-                        max="23"
-                        placeholder="Hours"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="minutes"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Minutes</FormLabel>
-                    <FormControl>
-                      <Input 
-                        type="number" 
-                        min="0"
-                        max="59"
-                        placeholder="Minutes"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+            <FormField
+              control={form.control}
+              name="endTime"
+              render={({ field: { onChange, ...field } }) => (
+                <FormItem>
+                  <FormLabel>End Time</FormLabel>
+                  <FormControl>
+                    <Input 
+                      type="datetime-local" 
+                      min={new Date().toISOString().slice(0, 16)}
+                      onChange={(e) => {
+                        try {
+                          const value = e.target.value;
+                          const date = new Date(value);
+                          if (!isNaN(date.getTime())) {
+                            onChange(value);
+                          }
+                        } catch (error) {
+                          console.error("Invalid date:", error);
+                        }
+                      }}
+                      {...field}
+                      className="[&::-webkit-calendar-picker-indicator]:appearance-none [&::-webkit-datetime-edit-ampm-field]:hidden"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <div className="flex gap-4">
               <Button
