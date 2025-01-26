@@ -18,18 +18,17 @@ export const Navbar = ({ user }: NavbarProps) => {
     queryFn: async () => {
       if (!user) return false;
       const { data, error } = await supabase
-        .from("user_roles")
+        .from("profiles")
         .select("role")
-        .eq("user_id", user.id)
-        .eq("role", "admin")
-        .maybeSingle();
+        .eq("id", user.id)
+        .single();
 
       if (error) {
         console.error("Error checking admin status:", error);
         return false;
       }
 
-      return !!data;
+      return data?.role === 'admin';
     },
     enabled: !!user,
   });
