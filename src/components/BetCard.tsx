@@ -1,7 +1,6 @@
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -32,18 +31,11 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
   const isDisabled = !user || isEnded || bet.isResolved;
 
   return (
-    <Card>
+    <Card className="max-w-2xl mx-auto bg-[#0A0B0F] border-gray-800">
       <CardHeader>
-        <CardTitle>{bet.eventName}</CardTitle>
-        <CardDescription>
-          {bet.isResolved
-            ? `Winner: ${bet.winner === "A" ? bet.optionA : bet.optionB}`
-            : "Betting is " + (isEnded ? "closed" : "open")}
-        </CardDescription>
+        <CardTitle className="text-2xl">{bet.eventName}</CardTitle>
       </CardHeader>
-      <CardContent>
-        <BetTimer endTime={bet.endTime} onTimeEnd={handleTimeEnd} />
-        
+      <CardContent className="space-y-8">
         <BetOptions
           optionA={bet.optionA}
           optionB={bet.optionB}
@@ -53,6 +45,11 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
           selectedOption={selectedOption}
           isDisabled={isDisabled}
         />
+
+        <div className="flex justify-between items-center text-muted-foreground">
+          <div>Total Pool: €{(bet.poolA + bet.poolB).toFixed(2)}</div>
+          <BetTimer endTime={bet.endTime} onTimeEnd={handleTimeEnd} />
+        </div>
 
         {user && selectedOption && !isDisabled && (
           <PlaceBetForm
@@ -66,6 +63,12 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
         {!user && (
           <p className="text-sm text-muted-foreground text-center">
             Please sign in to place a bet
+          </p>
+        )}
+
+        {bet.isResolved && (
+          <p className="text-sm text-muted-foreground text-center">
+            Winner: {bet.winner === "A" ? bet.optionA : bet.optionB}
           </p>
         )}
       </CardContent>
