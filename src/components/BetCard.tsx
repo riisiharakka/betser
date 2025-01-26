@@ -57,6 +57,7 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
   };
 
   const isDisabled = !user || isEnded || bet.isResolved;
+  const totalPool = Number((bet.poolA + bet.poolB).toFixed(2));
 
   return (
     <>
@@ -81,7 +82,7 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
               className="text-lg text-muted-foreground text-center flex items-center justify-center gap-2 cursor-pointer hover:text-white transition-colors"
               onClick={() => setShowPlacements(true)}
             >
-              Total Pool: €{(bet.poolA + bet.poolB).toFixed(2)}
+              Total Pool: €{totalPool}
               <Info className="h-4 w-4" />
             </div>
             <BetTimer endTime={bet.endTime} onTimeEnd={handleTimeEnd} />
