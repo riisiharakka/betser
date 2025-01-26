@@ -14,15 +14,17 @@ import {
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { TimeInputs } from "./TimeInputs";
+import { DateTimePicker } from "./DateTimePicker";
 
 const createBetSchema = z.object({
   eventName: z.string().min(1, "Event name is required"),
   optionA: z.string().min(1, "Option A is required"),
   optionB: z.string().min(1, "Option B is required"),
-  days: z.coerce.number().min(0, "Days must be 0 or greater"),
-  hours: z.coerce.number().min(0).max(23, "Hours must be between 0 and 23"),
-  minutes: z.coerce.number().min(0).max(59, "Minutes must be between 0 and 59"),
+  endTime: z.date({
+    required_error: "End time is required",
+  }).refine((date) => date > new Date(), {
+    message: "End time must be in the future",
+  }),
 });
 
 export type CreateBetFormValues = z.infer<typeof createBetSchema>;
@@ -37,9 +39,7 @@ export const CreateBetForm = () => {
       eventName: "",
       optionA: "",
       optionB: "",
-      days: 0,
-      hours: 0,
-      minutes: 0,
+      endTime: new Date(Date.now() + 24 * 60 * 60 * 1000), // Default to tomorrow
     },
   });
 
@@ -57,18 +57,11 @@ export const CreateBetForm = () => {
         return;
       }
 
-      const now = new Date();
-      const endTime = new Date(now.getTime() + 
-        (data.days * 24 * 60 * 60 * 1000) + 
-        (data.hours * 60 * 60 * 1000) + 
-        (data.minutes * 60 * 1000)
-      );
-
       const { error } = await supabase.from("bets").insert({
         event_name: data.eventName,
         option_a: data.optionA,
         option_b: data.optionB,
-        end_time: endTime.toISOString(),
+        end_time: data.endTime.toISOString(),
         pool_a: 0,
         pool_b: 0,
         is_resolved: false,
@@ -137,7 +130,22 @@ export const CreateBetForm = () => {
           )}
         />
 
-        <TimeInputs form={form} />
+        <FormField
+          control={form.control}
+          name="endTime"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>End Time</FormLabel>
+              <FormControl>
+                <DateTimePicker 
+                  date={field.value} 
+                  setDate={field.onChange}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         <div className="flex gap-4">
           <Button
