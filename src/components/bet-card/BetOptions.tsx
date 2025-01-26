@@ -46,7 +46,8 @@ export const BetOptions = ({
       <div>
         <Button
           onClick={() => onSelectOption("B")}
-          variant={selectedisabled={isDisabled}
+          variant={selectedOption === "B" ? "default" : "outline"}
+          disabled={isDisabled}
           className="w-full mb-2"
         >
           {optionB}
