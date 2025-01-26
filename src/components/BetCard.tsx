@@ -9,6 +9,7 @@ import { useState } from "react";
 import { BetOptions } from "./bet-card/BetOptions";
 import { BetTimer } from "./bet-card/BetTimer";
 import { PlaceBetForm } from "./bet-card/PlaceBetForm";
+import { BetPlacements } from "./bet-card/BetPlacements";
 import { Bet } from "@/lib/types";
 
 interface BetCardProps {
@@ -19,6 +20,7 @@ interface BetCardProps {
 export const BetCard = ({ bet, user }: BetCardProps) => {
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [isEnded, setIsEnded] = useState(false);
+  const [showPlacements, setShowPlacements] = useState(false);
 
   const handleTimeEnd = () => {
     setIsEnded(true);
@@ -31,49 +33,60 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
   const isDisabled = !user || isEnded || bet.isResolved;
 
   return (
-    <Card className="max-w-2xl mx-auto bg-[#0A0B0F] border-gray-800">
-      <CardHeader>
-        <CardTitle className="text-2xl">{bet.eventName}</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-8">
-        <BetOptions
-          optionA={bet.optionA}
-          optionB={bet.optionB}
-          poolA={bet.poolA}
-          poolB={bet.poolB}
-          onSelectOption={setSelectedOption}
-          selectedOption={selectedOption}
-          isDisabled={isDisabled}
-        />
-
-        <div className="space-y-2">
-          <div className="text-lg text-muted-foreground text-center">
-            Total Pool: €{(bet.poolA + bet.poolB).toFixed(2)}
-          </div>
-          <BetTimer endTime={bet.endTime} onTimeEnd={handleTimeEnd} />
-        </div>
-
-        {user && selectedOption && !isDisabled && (
-          <PlaceBetForm
-            betId={bet.id}
-            userId={user.id}
+    <>
+      <Card 
+        className="max-w-2xl mx-auto bg-[#0A0B0F] border-gray-800 cursor-pointer hover:bg-gray-900 transition-colors"
+        onClick={() => setShowPlacements(true)}
+      >
+        <CardHeader>
+          <CardTitle className="text-2xl">{bet.eventName}</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-8">
+          <BetOptions
+            optionA={bet.optionA}
+            optionB={bet.optionB}
+            poolA={bet.poolA}
+            poolB={bet.poolB}
+            onSelectOption={setSelectedOption}
             selectedOption={selectedOption}
-            onBetPlaced={handleBetPlaced}
+            isDisabled={isDisabled}
           />
-        )}
 
-        {!user && (
-          <p className="text-sm text-muted-foreground text-center">
-            Please sign in to place a bet
-          </p>
-        )}
+          <div className="space-y-2">
+            <div className="text-lg text-muted-foreground text-center">
+              Total Pool: €{(bet.poolA + bet.poolB).toFixed(2)}
+            </div>
+            <BetTimer endTime={bet.endTime} onTimeEnd={handleTimeEnd} />
+          </div>
 
-        {bet.isResolved && (
-          <p className="text-sm text-muted-foreground text-center">
-            Winner: {bet.winner === "A" ? bet.optionA : bet.optionB}
-          </p>
-        )}
-      </CardContent>
-    </Card>
+          {user && selectedOption && !isDisabled && (
+            <PlaceBetForm
+              betId={bet.id}
+              userId={user.id}
+              selectedOption={selectedOption}
+              onBetPlaced={handleBetPlaced}
+            />
+          )}
+
+          {!user && (
+            <p className="text-sm text-muted-foreground text-center">
+              Please sign in to place a bet
+            </p>
+          )}
+
+          {bet.isResolved && (
+            <p className="text-sm text-muted-foreground text-center">
+              Winner: {bet.winner === "A" ? bet.optionA : bet.optionB}
+            </p>
+          )}
+        </CardContent>
+      </Card>
+
+      <BetPlacements
+        betId={bet.id}
+        isOpen={showPlacements}
+        onClose={() => setShowPlacements(false)}
+      />
+    </>
   );
 };
