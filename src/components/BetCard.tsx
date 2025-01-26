@@ -9,10 +9,7 @@ import { useState } from "react";
 import { BetOptions } from "./bet-card/BetOptions";
 import { BetTimer } from "./bet-card/BetTimer";
 import { PlaceBetForm } from "./bet-card/PlaceBetForm";
-import { BetPlacements } from "./bet-card/BetPlacements";
 import { Bet } from "@/lib/types";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 
 interface BetCardProps {
   bet: Bet;
@@ -22,22 +19,6 @@ interface BetCardProps {
 export const BetCard = ({ bet, user }: BetCardProps) => {
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [isEnded, setIsEnded] = useState(false);
-  const [isExpanded, setIsExpanded] = useState(false);
-
-  const { data: placements } = useQuery({
-    queryKey: ["betPlacements", bet.id],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("bet_placements")
-        .select("option, amount, created_at")
-        .eq("bet_id", bet.id)
-        .order("created_at", { ascending: true });
-
-      if (error) throw error;
-      return data;
-    },
-    enabled: isExpanded,
-  });
 
   const handleTimeEnd = () => {
     setIsEnded(true);
@@ -50,10 +31,7 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
   const isDisabled = !user || isEnded || bet.isResolved;
 
   return (
-    <Card 
-      className="max-w-2xl mx-auto bg-[#0A0B0F] border-gray-800 cursor-pointer"
-      onClick={() => setIsExpanded(!isExpanded)}
-    >
+    <Card className="max-w-2xl mx-auto bg-[#0A0B0F] border-gray-800">
       <CardHeader>
         <CardTitle className="text-2xl">{bet.eventName}</CardTitle>
       </CardHeader>
@@ -95,8 +73,6 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
             Winner: {bet.winner === "A" ? bet.optionA : bet.optionB}
           </p>
         )}
-
-        {isExpanded && placements && <BetPlacements placements={placements} />}
       </CardContent>
     </Card>
   );
