@@ -39,7 +39,7 @@ export const BetList = ({ user }: BetListProps) => {
 
   if (isLoading) {
     return (
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {[1, 2, 3].map((i) => (
           <div
             key={i}
@@ -67,24 +67,25 @@ export const BetList = ({ user }: BetListProps) => {
   }
 
   return (
-    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 [&>*]:w-full">
       {bets.map((bet) => (
-        <BetCard
-          key={bet.id}
-          bet={{
-            id: bet.id,
-            eventName: bet.event_name,
-            optionA: bet.option_a,
-            optionB: bet.option_b,
-            poolA: bet.pool_a,
-            poolB: bet.pool_b,
-            endTime: new Date(bet.end_time),
-            isResolved: bet.is_resolved,
-            winner: bet.winner,
-            createdBy: bet.created_by
-          }}
-          user={user}
-        />
+        <div key={bet.id} className="w-full">
+          <BetCard
+            bet={{
+              id: bet.id,
+              eventName: bet.event_name,
+              optionA: bet.option_a,
+              optionB: bet.option_b,
+              poolA: bet.pool_a,
+              poolB: bet.pool_b,
+              endTime: new Date(bet.end_time),
+              isResolved: bet.is_resolved,
+              winner: bet.winner,
+              createdBy: bet.created_by
+            }}
+            user={user}
+          />
+        </div>
       ))}
     </div>
   );
