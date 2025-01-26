@@ -8,6 +8,7 @@ import type { User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
 import { format } from "date-fns";
+import { Check, X } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -50,7 +51,7 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
         .from("bet_placements")
         .select("amount, option, created_at")
         .eq("bet_id", bet.id)
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: true });  // Changed to ascending order
 
       if (error) throw error;
       return data as BetPlacement[];
@@ -125,7 +126,10 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
           <div className="text-center mb-2">Bet on</div>
           <div className="grid grid-cols-2 gap-4">
             <div className="text-center p-4 bg-secondary/10 rounded-lg">
-              <div className="font-semibold mb-2">{bet.optionA}</div>
+              <div className="font-semibold mb-2 flex items-center justify-center gap-2">
+                <Check className="w-5 h-5" />
+                {bet.optionA}
+              </div>
               <div className="text-2xl font-bold text-primary">
                 {formatOdds(oddsA)}x
               </div>
@@ -142,7 +146,10 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
             </div>
             
             <div className="text-center p-4 bg-secondary/10 rounded-lg">
-              <div className="font-semibold mb-2">{bet.optionB}</div>
+              <div className="font-semibold mb-2 flex items-center justify-center gap-2">
+                <X className="w-5 h-5" />
+                {bet.optionB}
+              </div>
               <div className="text-2xl font-bold text-primary">
                 {formatOdds(oddsB)}x
               </div>
@@ -215,11 +222,21 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
                   className="flex justify-between items-center p-3 bg-secondary/10 rounded-lg"
                 >
                   <div>
-                    <div className="font-medium">
-                      Option {placement.option}: {placement.option === 'A' ? bet.optionA : bet.optionB}
+                    <div className="font-medium flex items-center gap-2">
+                      {placement.option === 'A' ? (
+                        <>
+                          <Check className="w-4 h-4" />
+                          {bet.optionA}
+                        </>
+                      ) : (
+                        <>
+                          <X className="w-4 h-4" />
+                          {bet.optionB}
+                        </>
+                      )}
                     </div>
                     <div className="text-sm text-muted-foreground">
-                      {format(new Date(placement.created_at), "HH:mm d.M")}
+                      {format(new Date(placement.created_at), "mm:HH d.M")}
                     </div>
                   </div>
                   <div className="font-semibold">
