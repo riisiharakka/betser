@@ -28,8 +28,8 @@ export const Navbar = ({ user }: NavbarProps) => {
   return (
     <nav className="bg-primary py-4 px-6 shadow-lg">
       <div className="max-w-7xl mx-auto flex justify-between items-center">
-        <Link to="/" className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#8B5CF6] via-[#F97316] to-[#D946EF]">
-          BetPeer
+        <Link to="/" className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#9b87f5] via-[#7E69AB] to-[#6E59A5]">
+          Betser
         </Link>
 
         <div className="flex items-center gap-4">
