@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Bet } from "@/lib/types";
 import { calculateOdds, formatOdds } from "@/lib/utils/odds";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import type { User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
@@ -23,7 +23,7 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
   const [placeBetDialogOpen, setPlaceBetDialogOpen] = useState(false);
   const [viewBetsDialogOpen, setViewBetsDialogOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState<'A' | 'B' | null>(null);
-  const [betAmount, setBetAmount] = useState("10");
+  const [betAmount, setBetAmount] = useState<string>("10");
   const { oddsA, oddsB } = calculateOdds(bet.poolA, bet.poolB);
   const totalPool = bet.poolA + bet.poolB;
   const timeLeft = new Date(bet.endTime).getTime() - new Date().getTime();
