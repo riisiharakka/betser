@@ -51,7 +51,7 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
         .from("bet_placements")
         .select("amount, option, created_at")
         .eq("bet_id", bet.id)
-        .order("created_at", { ascending: true });  // Changed to ascending order
+        .order("created_at", { ascending: true });
 
       if (error) throw error;
       return data as BetPlacement[];
@@ -236,7 +236,7 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
                       )}
                     </div>
                     <div className="text-sm text-muted-foreground">
-                      {format(new Date(placement.created_at), "mm:HH d.M")}
+                      {format(new Date(placement.created_at), "HH:mm d.M")}
                     </div>
                   </div>
                   <div className="font-semibold">
