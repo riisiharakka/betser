@@ -150,11 +150,11 @@ const CreateBet = () => {
                       type="datetime-local" 
                       min={new Date().toISOString().slice(0, 16)}
                       onChange={(e) => {
-                        // Remove seconds by truncating the value
                         const value = e.target.value.slice(0, 16);
                         onChange(value);
                       }}
-                      {...field} 
+                      {...field}
+                      className="[&::-webkit-calendar-picker-indicator]:appearance-none [&::-webkit-datetime-edit-ampm-field]:hidden"
                     />
                   </FormControl>
                   <FormMessage />
