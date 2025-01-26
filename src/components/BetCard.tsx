@@ -10,6 +10,7 @@ import { BetOptions } from "./bet-card/BetOptions";
 import { BetTimer } from "./bet-card/BetTimer";
 import { PlaceBetForm } from "./bet-card/PlaceBetForm";
 import { BetPlacements } from "./bet-card/BetPlacements";
+import { Info } from "lucide-react";
 import { Bet } from "@/lib/types";
 
 interface BetCardProps {
@@ -34,10 +35,7 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
 
   return (
     <>
-      <Card 
-        className="max-w-2xl mx-auto bg-[#0A0B0F] border-gray-800 cursor-pointer hover:bg-gray-900 transition-colors"
-        onClick={() => setShowPlacements(true)}
-      >
+      <Card className="max-w-2xl mx-auto bg-[#0A0B0F] border-gray-800">
         <CardHeader>
           <CardTitle className="text-2xl">{bet.eventName}</CardTitle>
         </CardHeader>
@@ -53,8 +51,12 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
           />
 
           <div className="space-y-2">
-            <div className="text-lg text-muted-foreground text-center">
+            <div 
+              className="text-lg text-muted-foreground text-center flex items-center justify-center gap-2 cursor-pointer hover:text-white transition-colors"
+              onClick={() => setShowPlacements(true)}
+            >
               Total Pool: €{(bet.poolA + bet.poolB).toFixed(2)}
+              <Info className="h-4 w-4" />
             </div>
             <BetTimer endTime={bet.endTime} onTimeEnd={handleTimeEnd} />
           </div>
