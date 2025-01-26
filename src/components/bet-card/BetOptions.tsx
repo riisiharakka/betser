@@ -38,11 +38,8 @@ export const BetOptions = ({
             disabled={isDisabled}
             className="w-full py-6 text-lg"
           >
-            {optionA}
-          </Button>
-          <div className="text-3xl font-bold text-center">
             {getOdds(poolA)}x
-          </div>
+          </Button>
         </div>
 
         <div className="space-y-4">
@@ -53,11 +50,8 @@ export const BetOptions = ({
             disabled={isDisabled}
             className="w-full py-6 text-lg"
           >
-            {optionB}
-          </Button>
-          <div className="text-3xl font-bold text-center">
             {getOdds(poolB)}x
-          </div>
+          </Button>
         </div>
       </div>
     </div>
