@@ -19,7 +19,12 @@ const createBetSchema = z.object({
   eventName: z.string().min(1, "Event name is required"),
   optionA: z.string().min(1, "Option A is required"),
   optionB: z.string().min(1, "Option B is required"),
-  endTime: z.string().min(1, "End time is required"),
+  endTime: z.string()
+    .min(1, "End time is required")
+    .refine((date) => {
+      const selectedDate = new Date(date);
+      return !isNaN(selectedDate.getTime()) && selectedDate > new Date();
+    }, "End time must be in the future"),
 });
 
 type CreateBetForm = z.infer<typeof createBetSchema>;
@@ -141,7 +146,11 @@ const CreateBet = () => {
                 <FormItem>
                   <FormLabel>End Time</FormLabel>
                   <FormControl>
-                    <Input type="datetime-local" {...field} />
+                    <Input 
+                      type="datetime-local" 
+                      min={new Date().toISOString().slice(0, 16)}
+                      {...field} 
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
