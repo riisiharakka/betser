@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import type { User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
+import { format } from "date-fns";
 import {
   Dialog,
   DialogContent,
@@ -15,23 +16,46 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { useQuery } from "@tanstack/react-query";
 
 interface BetCardProps {
   bet: Bet;
   user: User | null;
 }
 
+interface BetPlacement {
+  amount: number;
+  option: string;
+  created_at: string;
+}
+
 export const BetCard = ({ bet, user }: BetCardProps) => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [isPlacingBet, setIsPlacingBet] = useState(false);
-  const [dialogOpen, setDialogOpen] = useState(false);
+  const [placeBetDialogOpen, setPlaceBetDialogOpen] = useState(false);
+  const [viewBetsDialogOpen, setViewBetsDialogOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState<'A' | 'B' | null>(null);
   const [betAmount, setBetAmount] = useState("10");
   const { oddsA, oddsB } = calculateOdds(bet.poolA, bet.poolB);
   const totalPool = bet.poolA + bet.poolB;
   const timeLeft = new Date(bet.endTime).getTime() - new Date().getTime();
   const isActive = timeLeft > 0;
+
+  // Fetch bet placements
+  const { data: betPlacements } = useQuery({
+    queryKey: ["betPlacements", bet.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("bet_placements")
+        .select("amount, option, created_at")
+        .eq("bet_id", bet.id)
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      return data as BetPlacement[];
+    },
+  });
 
   const handleBetClick = (option: 'A' | 'B') => {
     if (!user) {
@@ -43,7 +67,7 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
       return;
     }
     setSelectedOption(option);
-    setDialogOpen(true);
+    setPlaceBetDialogOpen(true);
   };
 
   const handlePlaceBet = async () => {
@@ -62,7 +86,6 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
         return;
       }
 
-      // Start a transaction
       const { data, error: err } = await supabase.rpc('place_bet', {
         p_bet_id: bet.id,
         p_user_id: user.id,
@@ -76,7 +99,7 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
         title: "Bet Placed Successfully",
         description: `You bet €${amount} on ${selectedOption === 'A' ? bet.optionA : bet.optionB}`,
       });
-      setDialogOpen(false);
+      setPlaceBetDialogOpen(false);
     } catch (error) {
       console.error('Error placing bet:', error);
       toast({
@@ -91,7 +114,10 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
 
   return (
     <>
-      <Card className="w-full hover:shadow-lg transition-shadow">
+      <Card 
+        className="w-full hover:shadow-lg transition-shadow cursor-pointer" 
+        onClick={() => setViewBetsDialogOpen(true)}
+      >
         <CardHeader>
           <CardTitle className="text-xl font-bold">{bet.eventName}</CardTitle>
         </CardHeader>
@@ -105,7 +131,10 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
               </div>
               <Button
                 className="mt-2 w-full"
-                onClick={() => handleBetClick('A')}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleBetClick('A');
+                }}
                 disabled={!isActive || isPlacingBet}
               >
                 {bet.optionA}
@@ -119,7 +148,10 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
               </div>
               <Button
                 className="mt-2 w-full"
-                onClick={() => handleBetClick('B')}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleBetClick('B');
+                }}
                 disabled={!isActive || isPlacingBet}
               >
                 {bet.optionB}
@@ -138,7 +170,8 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
         </CardContent>
       </Card>
 
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      {/* Place Bet Dialog */}
+      <Dialog open={placeBetDialogOpen} onOpenChange={setPlaceBetDialogOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Place Your Bet</DialogTitle>
@@ -158,11 +191,52 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
             />
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDialogOpen(false)}>
+            <Button variant="outline" onClick={() => setPlaceBetDialogOpen(false)}>
               Cancel
             </Button>
             <Button onClick={handlePlaceBet} disabled={isPlacingBet}>
               {isPlacingBet ? "Placing Bet..." : "Confirm Bet"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* View Bets Dialog */}
+      <Dialog open={viewBetsDialogOpen} onOpenChange={setViewBetsDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Placed Bets - {bet.eventName}</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <div className="space-y-4">
+              {betPlacements?.map((placement, index) => (
+                <div
+                  key={index}
+                  className="flex justify-between items-center p-3 bg-secondary/10 rounded-lg"
+                >
+                  <div>
+                    <div className="font-medium">
+                      Option {placement.option}: {placement.option === 'A' ? bet.optionA : bet.optionB}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      {format(new Date(placement.created_at), "HH:mm d.M")}
+                    </div>
+                  </div>
+                  <div className="font-semibold">
+                    €{placement.amount.toFixed(2)}
+                  </div>
+                </div>
+              ))}
+              {(!betPlacements || betPlacements.length === 0) && (
+                <div className="text-center text-muted-foreground">
+                  No bets placed yet
+                </div>
+              )}
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setViewBetsDialogOpen(false)}>
+              Close
             </Button>
           </DialogFooter>
         </DialogContent>
