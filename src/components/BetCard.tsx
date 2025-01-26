@@ -47,7 +47,7 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
         />
 
         <div className="space-y-2">
-          <div className="text-muted-foreground">
+          <div className="text-muted-foreground text-center">
             Total Pool: €{(bet.poolA + bet.poolB).toFixed(2)}
           </div>
           <BetTimer endTime={bet.endTime} onTimeEnd={handleTimeEnd} />
