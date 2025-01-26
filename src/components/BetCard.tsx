@@ -76,7 +76,7 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
         p_bet_id: bet.id,
         p_user_id: user.id,
         p_option: selectedOption,
-        p_amount: amount
+        p_amount: amount // Now correctly passing a number
       });
 
       if (err) throw err;
