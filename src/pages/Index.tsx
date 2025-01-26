@@ -27,7 +27,7 @@ const Index = ({ user }: IndexProps) => {
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-8 sm:px-12 lg:px-16 py-8">
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 sm:gap-8 mb-8">
           <div>
             <h1 className="text-4xl font-bold mb-2">Active Bets</h1>
             <p className="text-muted-foreground">
@@ -37,7 +37,7 @@ const Index = ({ user }: IndexProps) => {
           <Button
             size="lg"
             onClick={handleCreateBet}
-            className="bg-primary hover:bg-primary/90"
+            className="bg-primary hover:bg-primary/90 w-full sm:w-auto"
           >
             Create New Bet
           </Button>
