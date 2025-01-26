@@ -19,8 +19,16 @@ export const BetTimer = ({ endTime, onTimeEnd }: BetTimerProps) => {
         return "Ended";
       }
 
-      const minutes = Math.floor(difference / (1000 * 60));
-      return `${minutes} minutes`;
+      const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+
+      let timeString = "";
+      if (days > 0) timeString += `${days}d `;
+      if (hours > 0 || days > 0) timeString += `${hours}h `;
+      timeString += `${minutes}m`;
+
+      return timeString;
     };
 
     const timer = setInterval(() => {

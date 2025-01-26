@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import { Check, X } from "lucide-react";
 
 interface BetOptionsProps {
   optionA: string;
@@ -32,13 +31,7 @@ export const BetOptions = ({
       
       <div className="grid grid-cols-2 gap-8">
         <div className="space-y-4">
-          <div className="flex items-center justify-center gap-2">
-            <Check className="w-6 h-6" />
-            <span className="text-xl">{optionA}</span>
-          </div>
-          <div className="text-3xl font-bold text-center">
-            {getOdds(poolA)}x
-          </div>
+          <span className="text-xl block text-center">{optionA}</span>
           <Button
             onClick={() => onSelectOption("A")}
             variant={selectedOption === "A" ? "default" : "outline"}
@@ -47,16 +40,13 @@ export const BetOptions = ({
           >
             {optionA}
           </Button>
+          <div className="text-3xl font-bold text-center">
+            {getOdds(poolA)}x
+          </div>
         </div>
 
         <div className="space-y-4">
-          <div className="flex items-center justify-center gap-2">
-            <X className="w-6 h-6" />
-            <span className="text-xl">{optionB}</span>
-          </div>
-          <div className="text-3xl font-bold text-center">
-            {getOdds(poolB)}x
-          </div>
+          <span className="text-xl block text-center">{optionB}</span>
           <Button
             onClick={() => onSelectOption("B")}
             variant={selectedOption === "B" ? "default" : "outline"}
@@ -65,6 +55,9 @@ export const BetOptions = ({
           >
             {optionB}
           </Button>
+          <div className="text-3xl font-bold text-center">
+            {getOdds(poolB)}x
+          </div>
         </div>
       </div>
 
