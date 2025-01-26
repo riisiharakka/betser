@@ -13,12 +13,19 @@ interface DateTimePickerProps {
 }
 
 export function DateTimePicker({ date, setDate }: DateTimePickerProps) {
-  const [selectedTime, setSelectedTime] = React.useState(format(date, "HH:mm"));
+  // Ensure we have a valid date, fallback to current time if invalid
+  const validDate = date instanceof Date && !isNaN(date.getTime()) 
+    ? date 
+    : new Date();
+    
+  const [selectedTime, setSelectedTime] = React.useState(
+    format(validDate, "HH:mm")
+  );
 
   const handleTimeChange = (time: string) => {
     setSelectedTime(time);
     const [hours, minutes] = time.split(":").map(Number);
-    const newDate = new Date(date);
+    const newDate = new Date(validDate);
     newDate.setHours(hours, minutes);
     setDate(newDate);
   };
@@ -31,17 +38,17 @@ export function DateTimePicker({ date, setDate }: DateTimePickerProps) {
             variant={"outline"}
             className={cn(
               "justify-start text-left font-normal w-[200px]",
-              !date && "text-muted-foreground"
+              !validDate && "text-muted-foreground"
             )}
           >
             <CalendarIcon className="mr-2 h-4 w-4" />
-            {date ? format(date, "PPP") : <span>Pick a date</span>}
+            {validDate ? format(validDate, "PPP") : <span>Pick a date</span>}
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="start">
           <Calendar
             mode="single"
-            selected={date}
+            selected={validDate}
             onSelect={(newDate) => {
               if (newDate) {
                 const [hours, minutes] = selectedTime.split(":").map(Number);
