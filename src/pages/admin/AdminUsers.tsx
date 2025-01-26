@@ -18,6 +18,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { Database } from "@/integrations/supabase/types";
+
+type AppRole = Database["public"]["Enums"]["app_role"];
 
 const AdminUsers = () => {
   const { toast } = useToast();
@@ -35,7 +38,7 @@ const AdminUsers = () => {
     },
   });
 
-  const handleRoleChange = async (userId: string, newRole: string) => {
+  const handleRoleChange = async (userId: string, newRole: AppRole) => {
     try {
       const { error } = await supabase
         .from("profiles")
@@ -95,7 +98,7 @@ const AdminUsers = () => {
                 <TableCell>
                   <Select
                     defaultValue={user.role}
-                    onValueChange={(value) => handleRoleChange(user.id, value)}
+                    onValueChange={(value) => handleRoleChange(user.id, value as AppRole)}
                   >
                     <SelectTrigger className="w-32">
                       <SelectValue />
