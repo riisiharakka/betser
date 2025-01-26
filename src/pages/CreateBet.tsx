@@ -19,13 +19,9 @@ const createBetSchema = z.object({
   eventName: z.string().min(1, "Event name is required"),
   optionA: z.string().min(1, "Option A is required"),
   optionB: z.string().min(1, "Option B is required"),
-  days: z.string().transform((val) => parseInt(val, 10) || 0),
-  hours: z.string()
-    .transform((val) => parseInt(val, 10) || 0)
-    .refine((val) => val >= 0 && val <= 23, "Hours must be between 0 and 23"),
-  minutes: z.string()
-    .transform((val) => parseInt(val, 10) || 0)
-    .refine((val) => val >= 0 && val <= 59, "Minutes must be between 0 and 59"),
+  days: z.coerce.number().min(0, "Days must be 0 or greater"),
+  hours: z.coerce.number().min(0).max(23, "Hours must be between 0 and 23"),
+  minutes: z.coerce.number().min(0).max(59, "Minutes must be between 0 and 59"),
 });
 
 type CreateBetForm = z.infer<typeof createBetSchema>;
@@ -40,9 +36,9 @@ const CreateBet = () => {
       eventName: "",
       optionA: "",
       optionB: "",
-      days: "0",
-      hours: "0",
-      minutes: "0",
+      days: 0,
+      hours: 0,
+      minutes: 0,
     },
   });
 
@@ -163,6 +159,7 @@ const CreateBet = () => {
                         min="0"
                         placeholder="Days"
                         {...field}
+                        onChange={(e) => field.onChange(e.target.valueAsNumber)}
                       />
                     </FormControl>
                     <FormMessage />
@@ -183,6 +180,7 @@ const CreateBet = () => {
                         max="23"
                         placeholder="Hours"
                         {...field}
+                        onChange={(e) => field.onChange(e.target.valueAsNumber)}
                       />
                     </FormControl>
                     <FormMessage />
@@ -203,6 +201,7 @@ const CreateBet = () => {
                         max="59"
                         placeholder="Minutes"
                         {...field}
+                        onChange={(e) => field.onChange(e.target.valueAsNumber)}
                       />
                     </FormControl>
                     <FormMessage />
