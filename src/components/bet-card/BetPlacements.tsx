@@ -20,7 +20,13 @@ export const BetPlacements = ({ betId, isOpen, onClose }: BetPlacementsProps) =>
     queryFn: async () => {
       const { data, error } = await supabase
         .from("bet_placements")
-        .select("*")
+        .select(`
+          *,
+          bets (
+            option_a,
+            option_b
+          )
+        `)
         .eq("bet_id", betId)
         .order("created_at", { ascending: true });
 
@@ -44,7 +50,7 @@ export const BetPlacements = ({ betId, isOpen, onClose }: BetPlacementsProps) =>
             >
               <div className="flex items-center gap-4">
                 <span className="text-sm font-medium">
-                  Option {placement.option}
+                  {placement.option === 'A' ? placement.bets.option_a : placement.bets.option_b}
                 </span>
                 <span className="text-sm text-muted-foreground">
                   €{placement.amount.toFixed(2)}
