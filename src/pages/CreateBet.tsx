@@ -19,11 +19,13 @@ const createBetSchema = z.object({
   eventName: z.string().min(1, "Event name is required"),
   optionA: z.string().min(1, "Option A is required"),
   optionB: z.string().min(1, "Option B is required"),
-  endTime: z.string()
+  endTime: z
+    .string()
     .min(1, "End time is required")
     .refine((date) => {
       const selectedDate = new Date(date);
-      return !isNaN(selectedDate.getTime()) && selectedDate > new Date();
+      const now = new Date();
+      return selectedDate > now;
     }, "End time must be in the future"),
 });
 
@@ -150,8 +152,15 @@ const CreateBet = () => {
                       type="datetime-local" 
                       min={new Date().toISOString().slice(0, 16)}
                       onChange={(e) => {
-                        const value = e.target.value.slice(0, 16);
-                        onChange(value);
+                        try {
+                          const value = e.target.value;
+                          const date = new Date(value);
+                          if (!isNaN(date.getTime())) {
+                            onChange(value);
+                          }
+                        } catch (error) {
+                          console.error("Invalid date:", error);
+                        }
                       }}
                       {...field}
                       className="[&::-webkit-calendar-picker-indicator]:appearance-none [&::-webkit-datetime-edit-ampm-field]:hidden"
