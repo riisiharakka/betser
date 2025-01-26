@@ -142,14 +142,18 @@ const CreateBet = () => {
             <FormField
               control={form.control}
               name="endTime"
-              render={({ field }) => (
+              render={({ field: { onChange, ...field } }) => (
                 <FormItem>
                   <FormLabel>End Time</FormLabel>
                   <FormControl>
                     <Input 
                       type="datetime-local" 
                       min={new Date().toISOString().slice(0, 16)}
-                      step="60"
+                      onChange={(e) => {
+                        // Remove seconds by truncating the value
+                        const value = e.target.value.slice(0, 16);
+                        onChange(value);
+                      }}
                       {...field} 
                     />
                   </FormControl>
