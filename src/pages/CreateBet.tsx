@@ -149,6 +149,7 @@ const CreateBet = () => {
                     <Input 
                       type="datetime-local" 
                       min={new Date().toISOString().slice(0, 16)}
+                      step="60"
                       {...field} 
                     />
                   </FormControl>
