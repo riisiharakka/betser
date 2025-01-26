@@ -35,9 +35,13 @@ export const BetOptions = ({
   const [amount, setAmount] = useState("");
 
   const totalPool = poolA + poolB;
+  
   const getOdds = (pool: number) => {
-    if (totalPool === 0) return 2;
-    return ((totalPool + pool) / pool).toFixed(2);
+    // If the pool is 0, return 2 as the default odds
+    if (pool === 0) return 2;
+    
+    // Calculate odds as (Total Pool) / (Option Pool)
+    return Number((totalPool / pool).toFixed(2));
   };
 
   const handleBetClick = (option: string) => {
