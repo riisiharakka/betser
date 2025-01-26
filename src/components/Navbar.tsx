@@ -1,25 +1,28 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 import type { User } from "@supabase/supabase-js";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
 
 interface NavbarProps {
   user: User | null;
 }
 
 export const Navbar = ({ user }: NavbarProps) => {
+  const navigate = useNavigate();
   const { toast } = useToast();
 
-  const handleLogout = async () => {
+  const handleSignOut = async () => {
     const { error } = await supabase.auth.signOut();
     if (error) {
       toast({
         title: "Error",
-        description: error.message,
+        description: "Failed to sign out. Please try again.",
         variant: "destructive",
       });
+      return;
     }
+    navigate("/");
   };
 
   return (
@@ -28,30 +31,20 @@ export const Navbar = ({ user }: NavbarProps) => {
         <Link to="/" className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#8B5CF6] via-[#F97316] to-[#D946EF]">
           BetPeer
         </Link>
-        
-        <div className="flex gap-4 items-center">
-          <Link to="/">
-            <Button variant="ghost" className="text-white hover:text-primary-foreground">
-              Home
-            </Button>
-          </Link>
-          
+
+        <div className="flex items-center gap-4">
           {user ? (
             <>
-              <Link to="/profile">
-                <Button variant="ghost" className="text-white hover:text-primary-foreground">
-                  Profile
-                </Button>
+              <Link to="/my-bets">
+                <Button variant="secondary">My Bets</Button>
               </Link>
-              <Button variant="secondary" onClick={handleLogout}>
-                Logout
+              <Button onClick={handleSignOut} variant="secondary">
+                Sign Out
               </Button>
             </>
           ) : (
             <Link to="/auth">
-              <Button variant="secondary">
-                Login / Register
-              </Button>
+              <Button variant="secondary">Sign In</Button>
             </Link>
           )}
         </div>

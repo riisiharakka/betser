@@ -6,6 +6,7 @@ import { supabase } from "./integrations/supabase/client";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import CreateBet from "./pages/CreateBet";
+import MyBets from "./pages/MyBets";
 import { Navbar } from "./components/Navbar";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
@@ -39,6 +40,7 @@ function App() {
           <Route path="/" element={<Index user={user} />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/create-bet" element={<CreateBet />} />
+          <Route path="/my-bets" element={<MyBets user={user} />} />
         </Routes>
         <Toaster />
       </Router>
