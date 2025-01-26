@@ -46,8 +46,10 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
           isDisabled={isDisabled}
         />
 
-        <div className="flex justify-between items-center text-muted-foreground">
-          <div>Total Pool: €{(bet.poolA + bet.poolB).toFixed(2)}</div>
+        <div className="space-y-2">
+          <div className="text-muted-foreground">
+            Total Pool: €{(bet.poolA + bet.poolB).toFixed(2)}
+          </div>
           <BetTimer endTime={bet.endTime} onTimeEnd={handleTimeEnd} />
         </div>
 
