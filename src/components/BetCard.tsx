@@ -19,7 +19,6 @@ interface BetCardProps {
 }
 
 export const BetCard = ({ bet, user }: BetCardProps) => {
-  const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [isEnded, setIsEnded] = useState(false);
   const [showPlacements, setShowPlacements] = useState(false);
 
@@ -27,8 +26,31 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
     setIsEnded(true);
   };
 
-  const handleBetPlaced = () => {
-    setSelectedOption(null);
+  const handlePlaceBet = async (option: string, amount: number) => {
+    if (!user) return;
+
+    try {
+      const { error } = await supabase.rpc("place_bet", {
+        p_bet_id: bet.id,
+        p_user_id: user.id,
+        p_option: option,
+        p_amount: amount,
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Your bet has been placed successfully",
+      });
+    } catch (error) {
+      console.error("Error placing bet:", error);
+      toast({
+        title: "Error",
+        description: "Failed to place bet. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const isDisabled = !user || isEnded || bet.isResolved;
@@ -45,9 +67,10 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
             optionB={bet.optionB}
             poolA={bet.poolA}
             poolB={bet.poolB}
-            onSelectOption={setSelectedOption}
-            selectedOption={selectedOption}
+            onSelectOption={handlePlaceBet}
+            selectedOption={null}
             isDisabled={isDisabled}
+            eventName={bet.eventName}
           />
 
           <div className="space-y-2">
@@ -60,15 +83,6 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
             </div>
             <BetTimer endTime={bet.endTime} onTimeEnd={handleTimeEnd} />
           </div>
-
-          {user && selectedOption && !isDisabled && (
-            <PlaceBetForm
-              betId={bet.id}
-              userId={user.id}
-              selectedOption={selectedOption}
-              onBetPlaced={handleBetPlaced}
-            />
-          )}
 
           {!user && (
             <p className="text-sm text-muted-foreground text-center">
