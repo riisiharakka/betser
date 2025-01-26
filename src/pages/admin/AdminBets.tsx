@@ -1,11 +1,125 @@
 import { AdminLayout } from "@/layouts/AdminLayout";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { useBets } from "@/hooks/useBets";
+import { format } from "date-fns";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const AdminBets = () => {
+  const { data: bets, isLoading } = useBets();
+  const { toast } = useToast();
+
+  const handleResolve = async (betId: string, winner: string) => {
+    try {
+      const { error } = await supabase
+        .from("bets")
+        .update({ winner, is_resolved: true })
+        .eq("id", betId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Bet has been resolved successfully",
+      });
+    } catch (error) {
+      console.error("Error resolving bet:", error);
+      toast({
+        title: "Error",
+        description: "Failed to resolve bet. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <AdminLayout>
+        <div className="rounded-lg border bg-card text-card-foreground shadow-sm p-6">
+          <div className="h-8 bg-secondary/10 rounded animate-pulse mb-4" />
+          <div className="space-y-2">
+            {[1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className="h-12 bg-secondary/10 rounded animate-pulse"
+              />
+            ))}
+          </div>
+        </div>
+      </AdminLayout>
+    );
+  }
+
   return (
     <AdminLayout>
-      <div className="rounded-lg border bg-card text-card-foreground shadow-sm p-6">
-        <h2 className="text-2xl font-bold mb-4">Bets Management</h2>
-        <p className="text-muted-foreground">Coming soon...</p>
+      <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Event Name</TableHead>
+              <TableHead>Options</TableHead>
+              <TableHead>Pool Size</TableHead>
+              <TableHead>End Time</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {bets?.map((bet) => (
+              <TableRow key={bet.id}>
+                <TableCell>{bet.event_name}</TableCell>
+                <TableCell>
+                  {bet.option_a} vs {bet.option_b}
+                </TableCell>
+                <TableCell>€{(bet.pool_a + bet.pool_b).toFixed(2)}</TableCell>
+                <TableCell>
+                  {format(new Date(bet.end_time), "MMM d, yyyy HH:mm")}
+                </TableCell>
+                <TableCell>
+                  {bet.is_resolved ? (
+                    <span className="text-green-500">Resolved</span>
+                  ) : new Date(bet.end_time) > new Date() ? (
+                    <span className="text-blue-500">Active</span>
+                  ) : (
+                    <span className="text-yellow-500">Ended</span>
+                  )}
+                </TableCell>
+                <TableCell>
+                  {!bet.is_resolved && new Date(bet.end_time) <= new Date() && (
+                    <div className="flex items-center gap-2">
+                      <Select
+                        onValueChange={(value) => handleResolve(bet.id, value)}
+                      >
+                        <SelectTrigger className="w-32">
+                          <SelectValue placeholder="Select winner" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="A">{bet.option_a}</SelectItem>
+                          <SelectItem value="B">{bet.option_b}</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </div>
     </AdminLayout>
   );
