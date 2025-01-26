@@ -60,15 +60,6 @@ export const BetOptions = ({
           </div>
         </div>
       </div>
-
-      <div className="grid grid-cols-2 gap-8 text-muted-foreground">
-        <div className="text-center">
-          Pool: €{poolA.toFixed(2)}
-        </div>
-        <div className="text-center">
-          Pool: €{poolB.toFixed(2)}
-        </div>
-      </div>
     </div>
   );
 };
