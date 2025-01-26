@@ -1,14 +1,14 @@
 export interface Bet {
   id: string;
-  event_name: string;
-  option_a: string;
-  option_b: string;
-  pool_a: number;
-  pool_b: number;
-  end_time: Date;
-  is_resolved: boolean;
+  eventName: string;
+  optionA: string;
+  optionB: string;
+  poolA: number;
+  poolB: number;
+  endTime: Date;
+  isResolved: boolean;
   winner?: string | null;
-  created_by: string;
+  createdBy: string;
 }
 
 export interface BetPlacement {

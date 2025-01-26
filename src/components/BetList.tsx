@@ -14,10 +14,6 @@ export const BetList = ({ user }: BetListProps) => {
   const queryClient = useQueryClient();
   const { data: bets, isLoading, error } = useBets();
 
-  const handlePlaceBet = async (betId: string, option: string, amount: number) => {
-    // Implementation will be handled by the parent component
-  };
-
   useEffect(() => {
     // Subscribe to real-time updates
     const channel = supabase
@@ -75,9 +71,19 @@ export const BetList = ({ user }: BetListProps) => {
       {bets.map((bet) => (
         <BetCard
           key={bet.id}
-          bet={bet}
+          bet={{
+            id: bet.id,
+            eventName: bet.event_name,
+            optionA: bet.option_a,
+            optionB: bet.option_b,
+            poolA: bet.pool_a,
+            poolB: bet.pool_b,
+            endTime: new Date(bet.end_time),
+            isResolved: bet.is_resolved,
+            winner: bet.winner,
+            createdBy: bet.created_by
+          }}
           user={user}
-          onPlaceBet={handlePlaceBet}
         />
       ))}
     </div>

@@ -31,6 +31,7 @@ export const BetOptions = ({
       
       <div className="grid grid-cols-2 gap-8">
         <div className="space-y-4">
+          <span className="text-xl block text-center">{optionA}</span>
           <Button
             onClick={() => onSelectOption("A")}
             variant={selectedOption === "A" ? "default" : "outline"}
@@ -45,6 +46,7 @@ export const BetOptions = ({
         </div>
 
         <div className="space-y-4">
+          <span className="text-xl block text-center">{optionB}</span>
           <Button
             onClick={() => onSelectOption("B")}
             variant={selectedOption === "B" ? "default" : "outline"}
@@ -59,8 +61,13 @@ export const BetOptions = ({
         </div>
       </div>
 
-      <div className="text-center text-muted-foreground">
-        Total Pool: €{totalPool.toFixed(2)}
+      <div className="grid grid-cols-2 gap-8 text-muted-foreground">
+        <div className="text-center">
+          Pool: €{poolA.toFixed(2)}
+        </div>
+        <div className="text-center">
+          Pool: €{poolB.toFixed(2)}
+        </div>
       </div>
     </div>
   );
