@@ -25,7 +25,7 @@ export const Navbar = ({ user }: NavbarProps) => {
   return (
     <nav className="bg-primary py-4 px-6 shadow-lg">
       <div className="max-w-7xl mx-auto flex justify-between items-center">
-        <Link to="/" className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-500 to-red-500">
+        <Link to="/" className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#8B5CF6] via-[#F97316] to-[#D946EF]">
           BetPeer
         </Link>
         
