@@ -12,6 +12,8 @@ import { PlaceBetForm } from "./bet-card/PlaceBetForm";
 import { BetPlacements } from "./bet-card/BetPlacements";
 import { Info } from "lucide-react";
 import { Bet } from "@/lib/types";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface BetCardProps {
   bet: Bet;
@@ -21,6 +23,7 @@ interface BetCardProps {
 export const BetCard = ({ bet, user }: BetCardProps) => {
   const [isEnded, setIsEnded] = useState(false);
   const [showPlacements, setShowPlacements] = useState(false);
+  const { toast } = useToast();
 
   const handleTimeEnd = () => {
     setIsEnded(true);
