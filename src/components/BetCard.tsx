@@ -113,6 +113,16 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
     }
   };
 
+  const formatTimeLeft = (timeLeft: number) => {
+    const hours = Math.floor(timeLeft / (1000 * 60 * 60));
+    const minutes = Math.ceil((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+    
+    if (hours > 0) {
+      return `Ends in ${hours}h ${minutes}m`;
+    }
+    return `Ends in ${minutes}m`;
+  };
+
   return (
     <>
       <Card 
@@ -170,7 +180,7 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
             <div>Total Pool: €{totalPool.toFixed(2)}</div>
             <div>
               {isActive
-                ? `Ends in ${Math.ceil(timeLeft / (1000 * 60))} minutes`
+                ? formatTimeLeft(timeLeft)
                 : "Betting Closed"}
             </div>
           </div>
