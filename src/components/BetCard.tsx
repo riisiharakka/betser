@@ -83,7 +83,7 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
 
       toast({
         title: "Bet Placed Successfully",
-        description: `You bet €${amount} on ${selectedOption === 'A' ? bet.optionA : bet.optionB}`,
+        description: `You bet €${amount.toFixed(2)} on ${selectedOption === 'A' ? bet.optionA : bet.optionB}`,
       });
       setPlaceBetDialogOpen(false);
     } catch (error) {
