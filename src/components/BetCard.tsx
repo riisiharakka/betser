@@ -4,6 +4,7 @@ import { BetTimer } from "@/components/bet-card/BetTimer";
 import { PlaceBetForm } from "@/components/bet-card/PlaceBetForm";
 import type { Bet } from "@/lib/types";
 import type { User } from "@supabase/supabase-js";
+import { useState } from "react";
 
 interface BetCardProps {
   bet: Bet;
@@ -12,6 +13,10 @@ interface BetCardProps {
 }
 
 export const BetCard = ({ bet, user, onPlaceBet }: BetCardProps) => {
+  const handleTimeEnd = () => {
+    // Handle time end if needed
+  };
+
   return (
     <Card className="p-6">
       <div className="space-y-6">
@@ -30,13 +35,15 @@ export const BetCard = ({ bet, user, onPlaceBet }: BetCardProps) => {
         />
 
         <div className="text-center text-muted-foreground">
-          <BetTimer endTime={bet.end_time} />
+          <BetTimer endTime={bet.end_time} onTimeEnd={handleTimeEnd} />
         </div>
 
         {!bet.is_resolved && user && (
           <PlaceBetForm
             betId={bet.id}
-            onPlaceBet={onPlaceBet}
+            userId={user.id}
+            selectedOption=""
+            onBetPlaced={() => {}}
           />
         )}
 
