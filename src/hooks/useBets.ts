@@ -11,7 +11,13 @@ export const useBets = () => {
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      return data;
+
+      // Ensure numeric values are properly formatted
+      return data.map(bet => ({
+        ...bet,
+        pool_a: Number(bet.pool_a),
+        pool_b: Number(bet.pool_b)
+      }));
     },
   });
 };

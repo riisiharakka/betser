@@ -15,7 +15,7 @@ export const BetList = ({ user }: BetListProps) => {
   const { data: bets, isLoading, error } = useBets();
 
   useEffect(() => {
-    // Subscribe to real-time updates
+    // Subscribe to real-time updates for both bets and bet_placements
     const channel = supabase
       .channel("schema-db-changes")
       .on(
@@ -27,6 +27,18 @@ export const BetList = ({ user }: BetListProps) => {
         },
         () => {
           // Invalidate and refetch bets when there's a change
+          queryClient.invalidateQueries({ queryKey: ["bets"] });
+        }
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "bet_placements",
+        },
+        () => {
+          // Also invalidate when bet placements change
           queryClient.invalidateQueries({ queryKey: ["bets"] });
         }
       )
