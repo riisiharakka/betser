@@ -22,7 +22,7 @@ export const Navbar = ({ user }: NavbarProps) => {
         .select("role")
         .eq("user_id", user.id)
         .eq("role", "admin")
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error("Error checking admin status:", error);
