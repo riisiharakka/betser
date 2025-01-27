@@ -32,7 +32,8 @@ export const MoneyOwed = ({ user }: MoneyOwedProps) => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("money_owed")
-        .select("*");
+        .select("*")
+        .or(`winner_id.eq.${user?.id},debtor_id.eq.${user?.id}`);
 
       if (error) throw error;
       return data as MoneyOwedRecord[];
