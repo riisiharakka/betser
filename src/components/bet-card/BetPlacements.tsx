@@ -35,7 +35,7 @@ interface BetPlacement {
 }
 
 export const BetPlacements = ({ betId, isOpen, onClose }: BetPlacementsProps) => {
-  const { data: placements } = useQuery<BetPlacement[]>({
+  const { data: placements = [] } = useQuery<BetPlacement[]>({
     queryKey: ["bet-placements", betId],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -57,7 +57,7 @@ export const BetPlacements = ({ betId, isOpen, onClose }: BetPlacementsProps) =>
         .order("created_at", { ascending: true });
 
       if (error) throw error;
-      return data;
+      return data as BetPlacement[];
     },
     enabled: isOpen,
   });
@@ -100,7 +100,7 @@ export const BetPlacements = ({ betId, isOpen, onClose }: BetPlacementsProps) =>
           <DialogTitle className="text-xl mb-4">Placed Bets</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
-          {placements?.map((placement) => {
+          {placements.map((placement) => {
             const status = getBetStatus(placement);
             return (
               <div
@@ -131,7 +131,7 @@ export const BetPlacements = ({ betId, isOpen, onClose }: BetPlacementsProps) =>
               </div>
             )
           })}
-          {placements?.length === 0 && (
+          {placements.length === 0 && (
             <p className="text-center text-muted-foreground">
               No bets placed yet
             </p>
