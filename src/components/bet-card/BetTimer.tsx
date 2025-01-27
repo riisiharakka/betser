@@ -42,7 +42,7 @@ export const BetTimer = ({ endTime, onTimeEnd }: BetTimerProps) => {
 
   return (
     <div className="text-lg text-muted-foreground text-center">
-      Ends in {timeLeft}
+      {timeLeft === "Ended" ? "Ended" : `Ends in ${timeLeft}`}
     </div>
   );
 };
