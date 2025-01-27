@@ -34,10 +34,16 @@ const AdminBets = () => {
       // Map 'A' or 'B' to the actual option name
       const winningOption = winner === 'A' ? bet.optionA : bet.optionB;
 
+      // Update the bet with the winner and mark it as resolved
       const { error } = await supabase
         .from("bets")
-        .update({ winner: winningOption, is_resolved: true })
-        .eq("id", betId);
+        .update({ 
+          winner: winningOption, 
+          is_resolved: true,
+          updated_at: new Date().toISOString()
+        })
+        .eq("id", betId)
+        .select();
 
       if (error) throw error;
 
