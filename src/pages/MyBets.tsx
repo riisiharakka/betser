@@ -16,7 +16,6 @@ import { useToast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MoneyOwed } from "@/components/MoneyOwed";
 
 interface MyBetsProps {
   user: User | null;
@@ -182,11 +181,6 @@ const MyBets = ({ user }: MyBetsProps) => {
             </Table>
           </div>
         )}
-
-        <div className="mt-8">
-          <h2 className="text-2xl font-semibold mb-4">Money Owed Summary</h2>
-          <MoneyOwed user={user} />
-        </div>
       </div>
     </div>
   );
