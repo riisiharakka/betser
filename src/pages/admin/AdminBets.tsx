@@ -7,7 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useBets } from "@/hooks/useBets";
+import { useBets, useInvalidateBets } from "@/hooks/useBets";
 import { format } from "date-fns";
 import {
   Select,
@@ -22,6 +22,7 @@ import { useToast } from "@/hooks/use-toast";
 const AdminBets = () => {
   const { data: bets, isLoading } = useBets();
   const { toast } = useToast();
+  const invalidateBets = useInvalidateBets();
 
   const handleResolve = async (betId: string, winner: string) => {
     try {
@@ -39,6 +40,9 @@ const AdminBets = () => {
         .eq("id", betId);
 
       if (error) throw error;
+
+      // Invalidate both queries to refresh the data
+      await invalidateBets();
 
       toast({
         title: "Success",

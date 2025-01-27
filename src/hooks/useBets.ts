@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 export const useBets = () => {
@@ -27,5 +27,18 @@ export const useBets = () => {
         maxBetSize: bet.max_bet_size ? Number(bet.max_bet_size) : null
       }));
     },
+    staleTime: 0, // This ensures we always get fresh data
   });
+};
+
+export const useInvalidateBets = () => {
+  const queryClient = useQueryClient();
+  
+  return () => {
+    // Invalidate both bets and myBets queries
+    return Promise.all([
+      queryClient.invalidateQueries({ queryKey: ["bets"] }),
+      queryClient.invalidateQueries({ queryKey: ["myBets"] })
+    ]);
+  };
 };
