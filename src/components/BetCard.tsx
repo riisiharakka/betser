@@ -49,9 +49,10 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
           
           // Check if the error is related to max bet size
           if (errorDetails.message.includes('maximum allowed size')) {
+            const maxSize = errorDetails.message.match(/\d+/)[0];
             toast({
-              title: "Maximum Bet Exceeded",
-              description: errorDetails.message,
+              title: "Bet Size Limit Exceeded",
+              description: `Maximum bet size for this event is €${maxSize}. Please enter a smaller amount.`,
               variant: "destructive",
             });
             return;
