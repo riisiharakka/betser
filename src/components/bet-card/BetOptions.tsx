@@ -1,13 +1,7 @@
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 
 interface BetOptionsProps {
   optionA: string;
@@ -18,6 +12,7 @@ interface BetOptionsProps {
   selectedOption: string | null;
   isDisabled: boolean;
   eventName: string;
+  maxBetSize?: number | null;
 }
 
 export const BetOptions = ({
@@ -29,130 +24,97 @@ export const BetOptions = ({
   selectedOption,
   isDisabled,
   eventName,
+  maxBetSize,
 }: BetOptionsProps) => {
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedBetOption, setSelectedBetOption] = useState<string | null>(null);
   const [amount, setAmount] = useState("");
-  const [error, setError] = useState<string | null>(null);
+
+  const handleOptionSelect = (option: string) => {
+    if (isDisabled) return;
+    setSelectedBetOption(option);
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedBetOption || !amount || isDisabled) return;
+
+    const numericAmount = Number(amount);
+    if (isNaN(numericAmount) || numericAmount <= 0) {
+      return;
+    }
+
+    if (maxBetSize && numericAmount > maxBetSize) {
+      return;
+    }
+
+    onSelectOption(selectedBetOption, numericAmount);
+    setAmount("");
+    setSelectedBetOption(null);
+  };
 
   const totalPool = poolA + poolB;
-  
   const getOdds = (pool: number) => {
-    if (pool === 0) return 2;
-    return Number((totalPool / pool).toFixed(2));
-  };
-
-  const handleBetClick = (option: string) => {
-    setSelectedBetOption(option);
-    setIsDialogOpen(true);
-    setError(null);
-  };
-
-  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setAmount(value);
-    
-    // Clear error when user starts typing
-    if (error) setError(null);
-    
-    // Basic validation
-    if (value && Number(value) > 10) {
-      setError("Maximum bet size is €10");
-    }
-  };
-
-  const handleConfirmBet = () => {
-    if (selectedBetOption && amount) {
-      const betAmount = Number(amount);
-      if (betAmount > 10) {
-        setError("Maximum bet size is €10");
-        return;
-      }
-      
-      onSelectOption(selectedBetOption, betAmount);
-      setIsDialogOpen(false);
-      setAmount("");
-      setSelectedBetOption(null);
-      setError(null);
-    }
+    if (totalPool === 0) return "∞";
+    return (totalPool / pool).toFixed(2);
   };
 
   return (
-    <>
-      <div className="space-y-6">
-        <div className="text-2xl font-medium text-center">Bet on</div>
-        
-        <div className="grid grid-cols-2 gap-8">
-          <div className="space-y-4">
-            <span className="text-xl block text-center">{optionA}</span>
-            <Button
-              onClick={() => handleBetClick("A")}
-              variant={selectedOption === "A" ? "default" : "outline"}
-              disabled={isDisabled}
-              className="w-full py-6 text-lg"
-            >
-              {getOdds(poolA)}x
-            </Button>
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="grid grid-cols-2 gap-4">
+        <Button
+          type="button"
+          variant={selectedBetOption === "A" ? "default" : "outline"}
+          className={cn(
+            "h-auto py-8 space-y-2",
+            selectedOption === "A" && "border-green-500"
+          )}
+          onClick={() => handleOptionSelect("A")}
+          disabled={isDisabled}
+        >
+          <div className="text-lg font-semibold">{optionA}</div>
+          <div className="text-sm text-muted-foreground">
+            Pool: €{poolA.toFixed(2)}
           </div>
+          <div className="text-sm text-muted-foreground">
+            Odds: {getOdds(poolA)}
+          </div>
+        </Button>
 
-          <div className="space-y-4">
-            <span className="text-xl block text-center">{optionB}</span>
-            <Button
-              onClick={() => handleBetClick("B")}
-              variant={selectedOption === "B" ? "default" : "outline"}
-              disabled={isDisabled}
-              className="w-full py-6 text-lg"
-            >
-              {getOdds(poolB)}x
-            </Button>
+        <Button
+          type="button"
+          variant={selectedBetOption === "B" ? "default" : "outline"}
+          className={cn(
+            "h-auto py-8 space-y-2",
+            selectedOption === "B" && "border-green-500"
+          )}
+          onClick={() => handleOptionSelect("B")}
+          disabled={isDisabled}
+        >
+          <div className="text-lg font-semibold">{optionB}</div>
+          <div className="text-sm text-muted-foreground">
+            Pool: €{poolB.toFixed(2)}
           </div>
-        </div>
+          <div className="text-sm text-muted-foreground">
+            Odds: {getOdds(poolB)}
+          </div>
+        </Button>
       </div>
 
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="bg-[#0A0B0F] border-gray-800">
-          <DialogHeader>
-            <DialogTitle className="text-2xl">Place Your Bet</DialogTitle>
-          </DialogHeader>
-          <div className="py-6">
-            <p className="text-muted-foreground mb-6">
-              Place your bet on {eventName} for option{" "}
-              {selectedBetOption === "A" ? optionA : optionB}
-            </p>
-            <div className="space-y-2">
-              <label className="text-lg">Bet Amount (€)</label>
-              <Input
-                type="number"
-                value={amount}
-                onChange={handleAmountChange}
-                className="bg-background"
-              />
-              {error && (
-                <p className="text-sm text-destructive mt-1">{error}</p>
-              )}
-            </div>
-          </div>
-          <DialogFooter className="gap-2">
-            <Button
-              variant="outline"
-              onClick={() => {
-                setIsDialogOpen(false);
-                setError(null);
-              }}
-              className="flex-1"
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleConfirmBet}
-              disabled={!amount || Number(amount) <= 0 || !!error}
-              className="flex-1"
-            >
-              Confirm Bet
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </>
+      {selectedBetOption && !isDisabled && (
+        <div className="flex gap-2">
+          <Input
+            type="number"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            placeholder={`Enter amount${maxBetSize ? ` (max €${maxBetSize})` : ''}`}
+            className="flex-1"
+            min={0}
+            max={maxBetSize || undefined}
+            step={0.01}
+          />
+          <Button type="submit">Place Bet</Button>
+        </div>
+      )}
+    </form>
   );
 };
