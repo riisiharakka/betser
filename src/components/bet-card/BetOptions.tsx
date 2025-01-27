@@ -23,7 +23,6 @@ export const BetOptions = ({
   onSelectOption,
   selectedOption,
   isDisabled,
-  eventName,
   maxBetSize,
 }: BetOptionsProps) => {
   const [selectedBetOption, setSelectedBetOption] = useState<string | null>(null);
@@ -39,13 +38,8 @@ export const BetOptions = ({
     if (!selectedBetOption || !amount || isDisabled) return;
 
     const numericAmount = Number(amount);
-    if (isNaN(numericAmount) || numericAmount <= 0) {
-      return;
-    }
-
-    if (maxBetSize && numericAmount > maxBetSize) {
-      return;
-    }
+    if (isNaN(numericAmount) || numericAmount <= 0) return;
+    if (maxBetSize && numericAmount > maxBetSize) return;
 
     onSelectOption(selectedBetOption, numericAmount);
     setAmount("");
@@ -63,39 +57,45 @@ export const BetOptions = ({
       <div className="grid grid-cols-2 gap-4">
         <Button
           type="button"
-          variant={selectedBetOption === "A" ? "default" : "outline"}
+          variant="outline"
           className={cn(
-            "h-auto py-8 space-y-2",
+            "h-32 relative border border-gray-800 bg-[#0A0B0F] hover:bg-gray-900",
+            selectedBetOption === "A" && "ring-2 ring-primary",
             selectedOption === "A" && "border-green-500"
           )}
           onClick={() => handleOptionSelect("A")}
           disabled={isDisabled}
         >
-          <div className="text-lg font-semibold">{optionA}</div>
-          <div className="text-sm text-muted-foreground">
-            Pool: €{poolA.toFixed(2)}
-          </div>
-          <div className="text-sm text-muted-foreground">
-            Odds: {getOdds(poolA)}
+          <div className="flex flex-col items-center justify-center space-y-2">
+            <div className="text-xl font-semibold text-white">{optionA}</div>
+            <div className="text-sm text-gray-400">
+              Pool: €{poolA.toFixed(2)}
+            </div>
+            <div className="text-sm text-gray-400">
+              Odds: {getOdds(poolA)}
+            </div>
           </div>
         </Button>
 
         <Button
           type="button"
-          variant={selectedBetOption === "B" ? "default" : "outline"}
+          variant="outline"
           className={cn(
-            "h-auto py-8 space-y-2",
+            "h-32 relative border border-gray-800 bg-[#0A0B0F] hover:bg-gray-900",
+            selectedBetOption === "B" && "ring-2 ring-primary",
             selectedOption === "B" && "border-green-500"
           )}
           onClick={() => handleOptionSelect("B")}
           disabled={isDisabled}
         >
-          <div className="text-lg font-semibold">{optionB}</div>
-          <div className="text-sm text-muted-foreground">
-            Pool: €{poolB.toFixed(2)}
-          </div>
-          <div className="text-sm text-muted-foreground">
-            Odds: {getOdds(poolB)}
+          <div className="flex flex-col items-center justify-center space-y-2">
+            <div className="text-xl font-semibold text-white">{optionB}</div>
+            <div className="text-sm text-gray-400">
+              Pool: €{poolB.toFixed(2)}
+            </div>
+            <div className="text-sm text-gray-400">
+              Odds: {getOdds(poolB)}
+            </div>
           </div>
         </Button>
       </div>
@@ -107,12 +107,17 @@ export const BetOptions = ({
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
             placeholder={`Enter amount${maxBetSize ? ` (max €${maxBetSize})` : ''}`}
-            className="flex-1"
+            className="flex-1 bg-transparent border-gray-800"
             min={0}
             max={maxBetSize || undefined}
             step={0.01}
           />
-          <Button type="submit">Place Bet</Button>
+          <Button 
+            type="submit"
+            className="bg-primary hover:bg-primary/90"
+          >
+            Place Bet
+          </Button>
         </div>
       )}
     </form>

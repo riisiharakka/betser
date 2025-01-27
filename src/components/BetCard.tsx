@@ -111,11 +111,11 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
 
   return (
     <>
-      <Card className="max-w-2xl mx-auto bg-[#0A0B0F] border-gray-800">
-        <CardHeader>
-          <CardTitle className="text-2xl">{bet.eventName}</CardTitle>
+      <Card className="w-full bg-[#0A0B0F] border-gray-800">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-2xl font-bold text-white">{bet.eventName}</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-8">
+        <CardContent className="space-y-6">
           <BetOptions
             optionA={bet.optionA}
             optionB={bet.optionB}
@@ -125,18 +125,19 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
             selectedOption={existingBet?.option || null}
             isDisabled={isDisabled}
             eventName={bet.eventName}
+            maxBetSize={bet.maxBetSize}
           />
 
           <div className="space-y-2">
             <div 
-              className="text-lg text-muted-foreground text-center flex items-center justify-center gap-2 cursor-pointer hover:text-white transition-colors"
+              className="text-base text-gray-400 text-center flex items-center justify-center gap-2 cursor-pointer hover:text-gray-300 transition-colors"
               onClick={() => setShowPlacements(true)}
             >
               Total Pool: €{totalPool}
               <Info className="h-4 w-4" />
             </div>
             {bet.maxBetSize && (
-              <div className="text-lg text-muted-foreground text-center">
+              <div className="text-base text-gray-400 text-center">
                 Maximum Bet: €{bet.maxBetSize}
               </div>
             )}
@@ -144,19 +145,19 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
           </div>
 
           {!user && (
-            <p className="text-sm text-muted-foreground text-center">
+            <p className="text-sm text-gray-400 text-center">
               Please sign in to place a bet
             </p>
           )}
 
           {existingBet && (
-            <p className="text-sm text-muted-foreground text-center">
+            <p className="text-sm text-gray-400 text-center">
               You have already placed a bet on this event
             </p>
           )}
 
           {bet.isResolved && (
-            <p className="text-lg text-muted-foreground text-center">
+            <p className="text-lg text-gray-400 text-center">
               Winner: {bet.winner === "A" ? bet.optionA : bet.optionB}
             </p>
           )}
