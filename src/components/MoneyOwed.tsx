@@ -63,10 +63,45 @@ export const MoneyOwed = ({ user }: MoneyOwedProps) => {
     );
   }
 
+  // Calculate total amounts
+  const totalOwed = moneyOwed.reduce((acc, record) => {
+    if (record.debtor_id === user.id) {
+      return acc - record.winnings;
+    }
+    return acc;
+  }, 0);
+
+  const totalEarned = moneyOwed.reduce((acc, record) => {
+    if (record.winner_id === user.id) {
+      return acc + record.winnings;
+    }
+    return acc;
+  }, 0);
+
   const amIDebtor = (record: MoneyOwedRecord) => record.debtor_id === user.id;
 
   return (
     <div className="space-y-4">
+      <Card className="bg-[#0A0B0F] border-gray-800">
+        <CardHeader>
+          <CardTitle className="text-2xl">Summary</CardTitle>
+          <div className="flex justify-between mt-2">
+            <div>
+              <p className="text-sm text-muted-foreground">Total Owed</p>
+              <p className={`text-lg font-medium ${totalOwed > 0 ? 'text-red-500' : 'text-white'}`}>
+                €{Math.abs(totalOwed).toFixed(2)}
+              </p>
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Total to Receive</p>
+              <p className={`text-lg font-medium ${totalEarned > 0 ? 'text-green-500' : 'text-white'}`}>
+                €{totalEarned.toFixed(2)}
+              </p>
+            </div>
+          </div>
+        </CardHeader>
+      </Card>
+
       {moneyOwed.map((record, index) => (
         <Card key={index} className="bg-[#0A0B0F] border-gray-800">
           <CardHeader>
