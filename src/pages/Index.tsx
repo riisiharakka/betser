@@ -26,18 +26,18 @@ const Index = ({ user }: IndexProps) => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-8 sm:px-12 lg:px-16 py-8">
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 sm:gap-8 mb-8">
           <div>
-            <h1 className="text-4xl font-bold text-white mb-2">Active Bets</h1>
-            <p className="text-gray-400">
+            <h1 className="text-4xl font-bold mb-2">Active Bets</h1>
+            <p className="text-muted-foreground">
               Place your bets on various events with dynamic odds
             </p>
           </div>
           <Button
             size="lg"
             onClick={handleCreateBet}
-            className="bg-white text-black hover:bg-gray-100 w-full sm:w-auto"
+            className="bg-primary hover:bg-primary/90 w-full sm:w-auto"
           >
             Create New Bet
           </Button>
