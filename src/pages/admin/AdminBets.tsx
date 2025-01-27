@@ -52,7 +52,7 @@ const AdminBets = () => {
         throw error;
       }
 
-      // Invalidate both queries to refresh the data
+      // Invalidate queries to refresh the data
       await invalidateBets();
 
       toast({
@@ -123,19 +123,15 @@ const AdminBets = () => {
                 </TableCell>
                 <TableCell>
                   {!bet.isResolved && new Date(bet.endTime) <= new Date() && (
-                    <div className="flex items-center gap-2">
-                      <Select
-                        onValueChange={(value) => handleResolve(bet.id, value)}
-                      >
-                        <SelectTrigger className="w-32">
-                          <SelectValue placeholder="Select winner" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="A">{bet.optionA}</SelectItem>
-                          <SelectItem value="B">{bet.optionB}</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
+                    <Select onValueChange={(value) => handleResolve(bet.id, value)}>
+                      <SelectTrigger className="w-32">
+                        <SelectValue placeholder="Select winner" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="A">{bet.optionA}</SelectItem>
+                        <SelectItem value="B">{bet.optionB}</SelectItem>
+                      </SelectContent>
+                    </Select>
                   )}
                 </TableCell>
               </TableRow>
