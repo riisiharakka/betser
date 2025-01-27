@@ -42,7 +42,7 @@ const Index = ({ user }: IndexProps) => {
             Create New Bet
           </Button>
         </div>
-
+        
         <BetList user={user} />
       </div>
     </div>
