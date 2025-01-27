@@ -25,16 +25,24 @@ const AdminBets = () => {
 
   const handleResolve = async (betId: string, winner: string) => {
     try {
+      const bet = bets?.find(b => b.id === betId);
+      if (!bet) {
+        throw new Error("Bet not found");
+      }
+
+      // Map 'A' or 'B' to the actual option name
+      const winningOption = winner === 'A' ? bet.optionA : bet.optionB;
+
       const { error } = await supabase
         .from("bets")
-        .update({ winner, is_resolved: true })
+        .update({ winner: winningOption, is_resolved: true })
         .eq("id", betId);
 
       if (error) throw error;
 
       toast({
         title: "Success",
-        description: "Bet has been resolved successfully",
+        description: `Bet has been resolved with winner: ${winningOption}`,
       });
     } catch (error) {
       console.error("Error resolving bet:", error);
@@ -91,7 +99,7 @@ const AdminBets = () => {
                 </TableCell>
                 <TableCell>
                   {bet.isResolved ? (
-                    <span className="text-green-500">Resolved</span>
+                    <span className="text-green-500">Resolved ({bet.winner})</span>
                   ) : new Date(bet.endTime) > new Date() ? (
                     <span className="text-blue-500">Active</span>
                   ) : (
