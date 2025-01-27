@@ -118,7 +118,7 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
               <Info className="h-4 w-4" />
             </div>
             {bet.maxBetSize && (
-              <div className="text-sm text-muted-foreground text-center">
+              <div className="text-lg text-muted-foreground text-center">
                 Maximum Bet: €{bet.maxBetSize}
               </div>
             )}
@@ -132,7 +132,7 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
           )}
 
           {bet.isResolved && (
-            <p className="text-sm text-muted-foreground text-center">
+            <p className="text-lg text-muted-foreground text-center">
               Winner: {bet.winner === "A" ? bet.optionA : bet.optionB}
             </p>
           )}
