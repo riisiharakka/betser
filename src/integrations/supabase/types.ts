@@ -121,9 +121,28 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      money_owed: {
+        Row: {
+          bet_amount: number | null
+          debtor_id: string | null
+          debtor_username: string | null
+          event_name: string | null
+          profit: number | null
+          winner_id: string | null
+          winner_username: string | null
+          winning_option: string | null
+          winnings: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
+      calculate_bet_winnings: {
+        Args: {
+          bet_placement_id: string
+        }
+        Returns: number
+      }
       has_role: {
         Args: {
           user_id: string

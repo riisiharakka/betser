@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { BetList } from "@/components/BetList";
+import { MoneyOwed } from "@/components/MoneyOwed";
 import { useToast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
 import type { User } from "@supabase/supabase-js";
@@ -27,6 +28,13 @@ const Index = ({ user }: IndexProps) => {
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-8 sm:px-12 lg:px-16 py-8">
+        {user && (
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold mb-4">Money Owed</h2>
+            <MoneyOwed user={user} />
+          </div>
+        )}
+        
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 sm:gap-8 mb-8">
           <div>
             <h1 className="text-4xl font-bold mb-2">Active Bets</h1>
