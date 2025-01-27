@@ -33,28 +33,47 @@ export const BetOptions = ({
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedBetOption, setSelectedBetOption] = useState<string | null>(null);
   const [amount, setAmount] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
   const totalPool = poolA + poolB;
   
   const getOdds = (pool: number) => {
-    // If the pool is 0, return 2 as the default odds
     if (pool === 0) return 2;
-    
-    // Calculate odds as (Total Pool) / (Option Pool)
     return Number((totalPool / pool).toFixed(2));
   };
 
   const handleBetClick = (option: string) => {
     setSelectedBetOption(option);
     setIsDialogOpen(true);
+    setError(null);
+  };
+
+  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setAmount(value);
+    
+    // Clear error when user starts typing
+    if (error) setError(null);
+    
+    // Basic validation
+    if (value && Number(value) > 10) {
+      setError("Maximum bet size is €10");
+    }
   };
 
   const handleConfirmBet = () => {
     if (selectedBetOption && amount) {
-      onSelectOption(selectedBetOption, Number(amount));
+      const betAmount = Number(amount);
+      if (betAmount > 10) {
+        setError("Maximum bet size is €10");
+        return;
+      }
+      
+      onSelectOption(selectedBetOption, betAmount);
       setIsDialogOpen(false);
       setAmount("");
       setSelectedBetOption(null);
+      setError(null);
     }
   };
 
@@ -105,22 +124,28 @@ export const BetOptions = ({
               <Input
                 type="number"
                 value={amount}
-                onChange={(e) => setAmount(e.target.value)}
+                onChange={handleAmountChange}
                 className="bg-background"
               />
+              {error && (
+                <p className="text-sm text-destructive mt-1">{error}</p>
+              )}
             </div>
           </div>
           <DialogFooter className="gap-2">
             <Button
               variant="outline"
-              onClick={() => setIsDialogOpen(false)}
+              onClick={() => {
+                setIsDialogOpen(false);
+                setError(null);
+              }}
               className="flex-1"
             >
               Cancel
             </Button>
             <Button
               onClick={handleConfirmBet}
-              disabled={!amount || Number(amount) <= 0}
+              disabled={!amount || Number(amount) <= 0 || !!error}
               className="flex-1"
             >
               Confirm Bet
