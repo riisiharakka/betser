@@ -10,6 +10,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
@@ -24,6 +25,11 @@ const createBetSchema = z.object({
     required_error: "End time is required",
   }).refine((date) => date > new Date(), {
     message: "End time must be in the future",
+  }),
+  maxBetSize: z.string().optional().transform((val) => {
+    if (!val) return null;
+    const num = Number(val);
+    return isNaN(num) ? null : num;
   }),
 });
 
@@ -40,6 +46,7 @@ export const CreateBetForm = () => {
       optionA: "",
       optionB: "",
       endTime: new Date(Date.now() + 24 * 60 * 60 * 1000), // Default to tomorrow
+      maxBetSize: "",
     },
   });
 
@@ -66,6 +73,7 @@ export const CreateBetForm = () => {
         pool_b: 0,
         is_resolved: false,
         created_by: sessionData.session.user.id,
+        max_bet_size: data.maxBetSize,
       });
 
       if (error) throw error;
@@ -142,6 +150,27 @@ export const CreateBetForm = () => {
                   setDate={field.onChange}
                 />
               </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="maxBetSize"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Maximum Bet Size (Optional)</FormLabel>
+              <FormControl>
+                <Input 
+                  type="number" 
+                  placeholder="Enter maximum bet size" 
+                  {...field} 
+                />
+              </FormControl>
+              <FormDescription>
+                Leave empty for no maximum bet size limit
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}

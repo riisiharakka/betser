@@ -52,6 +52,7 @@ export type Database = {
           event_name: string
           id: string
           is_resolved: boolean
+          max_bet_size: number | null
           option_a: string
           option_b: string
           pool_a: number
@@ -66,6 +67,7 @@ export type Database = {
           event_name: string
           id?: string
           is_resolved?: boolean
+          max_bet_size?: number | null
           option_a: string
           option_b: string
           pool_a?: number
@@ -80,6 +82,7 @@ export type Database = {
           event_name?: string
           id?: string
           is_resolved?: boolean
+          max_bet_size?: number | null
           option_a?: string
           option_b?: string
           pool_a?: number
