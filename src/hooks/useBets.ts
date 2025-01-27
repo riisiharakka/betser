@@ -12,11 +12,19 @@ export const useBets = () => {
 
       if (error) throw error;
 
-      // Ensure numeric values are properly formatted
+      // Ensure numeric values are properly formatted and map database fields to frontend model
       return data.map(bet => ({
-        ...bet,
-        pool_a: Number(bet.pool_a),
-        pool_b: Number(bet.pool_b)
+        id: bet.id,
+        eventName: bet.event_name,
+        optionA: bet.option_a,
+        optionB: bet.option_b,
+        poolA: Number(bet.pool_a),
+        poolB: Number(bet.pool_b),
+        endTime: new Date(bet.end_time),
+        isResolved: bet.is_resolved,
+        winner: bet.winner,
+        createdBy: bet.created_by,
+        maxBetSize: bet.max_bet_size ? Number(bet.max_bet_size) : null
       }));
     },
   });
