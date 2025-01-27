@@ -49,7 +49,7 @@ export const BetPlacements = ({ betId, isOpen, onClose }: BetPlacementsProps) =>
             is_resolved,
             winner
           ),
-          profiles:user_id (
+          profiles (
             username
           )
         `)
