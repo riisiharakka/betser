@@ -85,15 +85,16 @@ export const BetList = ({ user }: BetListProps) => {
           <BetCard
             bet={{
               id: bet.id,
-              eventName: bet.event_name,
-              optionA: bet.option_a,
-              optionB: bet.option_b,
-              poolA: bet.pool_a,
-              poolB: bet.pool_b,
-              endTime: new Date(bet.end_time),
-              isResolved: bet.is_resolved,
+              eventName: bet.eventName,
+              optionA: bet.optionA,
+              optionB: bet.optionB,
+              poolA: bet.poolA,
+              poolB: bet.poolB,
+              endTime: bet.endTime,
+              isResolved: bet.isResolved,
               winner: bet.winner,
-              createdBy: bet.created_by
+              createdBy: bet.createdBy,
+              maxBetSize: bet.maxBetSize
             }}
             user={user}
           />

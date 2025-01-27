@@ -9,7 +9,6 @@ import {
 } from "@/components/ui/table";
 import { useBets } from "@/hooks/useBets";
 import { format } from "date-fns";
-import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -82,25 +81,25 @@ const AdminBets = () => {
           <TableBody>
             {bets?.map((bet) => (
               <TableRow key={bet.id}>
-                <TableCell>{bet.event_name}</TableCell>
+                <TableCell>{bet.eventName}</TableCell>
                 <TableCell>
-                  {bet.option_a} vs {bet.option_b}
+                  {bet.optionA} vs {bet.optionB}
                 </TableCell>
-                <TableCell>€{(bet.pool_a + bet.pool_b).toFixed(2)}</TableCell>
+                <TableCell>€{(bet.poolA + bet.poolB).toFixed(2)}</TableCell>
                 <TableCell>
-                  {format(new Date(bet.end_time), "MMM d, yyyy HH:mm")}
+                  {format(new Date(bet.endTime), "MMM d, yyyy HH:mm")}
                 </TableCell>
                 <TableCell>
-                  {bet.is_resolved ? (
+                  {bet.isResolved ? (
                     <span className="text-green-500">Resolved</span>
-                  ) : new Date(bet.end_time) > new Date() ? (
+                  ) : new Date(bet.endTime) > new Date() ? (
                     <span className="text-blue-500">Active</span>
                   ) : (
                     <span className="text-yellow-500">Ended</span>
                   )}
                 </TableCell>
                 <TableCell>
-                  {!bet.is_resolved && new Date(bet.end_time) <= new Date() && (
+                  {!bet.isResolved && new Date(bet.endTime) <= new Date() && (
                     <div className="flex items-center gap-2">
                       <Select
                         onValueChange={(value) => handleResolve(bet.id, value)}
@@ -109,8 +108,8 @@ const AdminBets = () => {
                           <SelectValue placeholder="Select winner" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="A">{bet.option_a}</SelectItem>
-                          <SelectItem value="B">{bet.option_b}</SelectItem>
+                          <SelectItem value="A">{bet.optionA}</SelectItem>
+                          <SelectItem value="B">{bet.optionB}</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
