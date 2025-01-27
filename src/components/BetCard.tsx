@@ -10,7 +10,7 @@ import { BetOptions } from "./bet-card/BetOptions";
 import { BetTimer } from "./bet-card/BetTimer";
 import { PlaceBetForm } from "./bet-card/PlaceBetForm";
 import { BetPlacements } from "./bet-card/BetPlacements";
-import { Info } from "lucide-react";
+import { Info, DollarSign, User as UserIcon } from "lucide-react";
 import { Bet } from "@/lib/types";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -42,6 +42,24 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
       return data;
     },
     enabled: !!user,
+  });
+
+  // Query to get money owed information for this bet
+  const { data: moneyOwed } = useQuery({
+    queryKey: ["money-owed", bet.id, user?.id],
+    queryFn: async () => {
+      if (!user || !bet.isResolved) return null;
+      
+      const { data } = await supabase
+        .from("money_owed")
+        .select("*")
+        .or(`winner_id.eq.${user.id},debtor_id.eq.${user.id}`)
+        .eq("event_name", bet.eventName)
+        .maybeSingle();
+      
+      return data;
+    },
+    enabled: !!user && bet.isResolved,
   });
 
   const handleTimeEnd = () => {
@@ -157,9 +175,37 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
           )}
 
           {bet.isResolved && (
-            <p className="text-lg text-muted-foreground text-center">
-              Winner: {bet.winner === "A" ? bet.optionA : bet.optionB}
-            </p>
+            <>
+              <p className="text-lg text-muted-foreground text-center">
+                Winner: {bet.winner === "A" ? bet.optionA : bet.optionB}
+              </p>
+              {moneyOwed && (
+                <div className="space-y-4 border-t border-gray-800 pt-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <UserIcon className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm text-muted-foreground">
+                        {moneyOwed.debtor_id === user?.id
+                          ? `You owe ${moneyOwed.winner_username}`
+                          : `${moneyOwed.debtor_username} owes you`}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <DollarSign className="h-4 w-4 text-muted-foreground" />
+                      <span className={`text-sm font-medium ${
+                        moneyOwed.debtor_id === user?.id ? 'text-red-500' : 'text-green-500'
+                      }`}>
+                        €{moneyOwed.winnings.toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    Original bet: €{moneyOwed.bet_amount.toFixed(2)} | Profit: €
+                    {moneyOwed.profit.toFixed(2)}
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </CardContent>
       </Card>
