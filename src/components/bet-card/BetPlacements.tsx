@@ -15,8 +15,27 @@ interface BetPlacementsProps {
   onClose: () => void;
 }
 
+interface BetPlacement {
+  id: string;
+  bet_id: string;
+  user_id: string;
+  option: string;
+  amount: number;
+  created_at: string;
+  bets: {
+    option_a: string;
+    option_b: string;
+    end_time: string;
+    is_resolved: boolean;
+    winner: string | null;
+  };
+  profiles: {
+    username: string;
+  } | null;
+}
+
 export const BetPlacements = ({ betId, isOpen, onClose }: BetPlacementsProps) => {
-  const { data: placements } = useQuery({
+  const { data: placements } = useQuery<BetPlacement[]>({
     queryKey: ["bet-placements", betId],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -43,7 +62,7 @@ export const BetPlacements = ({ betId, isOpen, onClose }: BetPlacementsProps) =>
     enabled: isOpen,
   });
 
-  const getBetStatus = (placement: any) => {
+  const getBetStatus = (placement: BetPlacement) => {
     const timeLeft = new Date(placement.bets.end_time).getTime() - new Date().getTime();
     const isActive = timeLeft > 0;
 
