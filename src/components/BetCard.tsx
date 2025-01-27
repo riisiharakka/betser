@@ -117,6 +117,11 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
               Total Pool: €{totalPool}
               <Info className="h-4 w-4" />
             </div>
+            {bet.maxBetSize && (
+              <div className="text-sm text-muted-foreground text-center">
+                Max Bet: €{bet.maxBetSize}
+              </div>
+            )}
             <BetTimer endTime={bet.endTime} onTimeEnd={handleTimeEnd} />
           </div>
 
