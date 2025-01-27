@@ -9,6 +9,7 @@ export interface Bet {
   isResolved: boolean;
   winner?: string | null;
   createdBy: string;
+  maxBetSize?: number | null;
 }
 
 export interface BetPlacement {
