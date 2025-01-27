@@ -125,6 +125,7 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
             selectedOption={existingBet?.option || null}
             isDisabled={isDisabled}
             eventName={bet.eventName}
+            maxBetSize={bet.maxBetSize}
           />
 
           <div className="space-y-2">
