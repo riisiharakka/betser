@@ -24,24 +24,21 @@ const AdminBets = () => {
   const { toast } = useToast();
   const invalidateBets = useInvalidateBets();
 
-  const handleResolve = async (betId: string, winner: string) => {
+  const handleResolve = async (betId: string, winner: "A" | "B") => {
     try {
-      console.log("Resolving bet:", betId, "with winner:", winner);
-      
       const bet = bets?.find(b => b.id === betId);
       if (!bet) {
         throw new Error("Bet not found");
       }
 
-      // Map 'A' or 'B' to the actual option name
-      const winningOption = winner === 'A' ? bet.optionA : bet.optionB;
+      // Map A/B to the actual option name
+      const winningOption = winner === "A" ? bet.optionA : bet.optionB;
       console.log("Winning option:", winningOption);
 
-      // Update the bet with the winner and mark it as resolved
       const { error } = await supabase
         .from("bets")
         .update({ 
-          winner: winningOption, 
+          winner: winningOption,
           is_resolved: true,
           updated_at: new Date().toISOString()
         })
@@ -123,7 +120,7 @@ const AdminBets = () => {
                 </TableCell>
                 <TableCell>
                   {!bet.isResolved && new Date(bet.endTime) <= new Date() && (
-                    <Select onValueChange={(value) => handleResolve(bet.id, value)}>
+                    <Select onValueChange={(value) => handleResolve(bet.id, value as "A" | "B")}>
                       <SelectTrigger className="w-32">
                         <SelectValue placeholder="Select winner" />
                       </SelectTrigger>
