@@ -16,6 +16,15 @@ import { useToast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { MoneyOwed } from "@/components/MoneyOwed";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { useState } from "react";
 
 interface MyBetsProps {
   user: User | null;
@@ -24,6 +33,7 @@ interface MyBetsProps {
 const MyBets = ({ user }: MyBetsProps) => {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const [showMoneyOwed, setShowMoneyOwed] = useState(false);
 
   const { data: bets, isLoading } = useQuery({
     queryKey: ["myBets", user?.id],
@@ -161,7 +171,8 @@ const MyBets = ({ user }: MyBetsProps) => {
                         <div className="flex items-center gap-2">
                           <Badge 
                             variant="secondary"
-                            className={`${status.color} text-white flex items-center gap-1`}
+                            className={`${status.color} text-white flex items-center gap-1 cursor-pointer hover:opacity-90 transition-opacity`}
+                            onClick={() => setShowMoneyOwed(true)}
                           >
                             <status.Icon className="w-3 h-3" />
                             {status.label}
@@ -181,6 +192,18 @@ const MyBets = ({ user }: MyBetsProps) => {
             </Table>
           </div>
         )}
+
+        <Dialog open={showMoneyOwed} onOpenChange={setShowMoneyOwed}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Money Owed</DialogTitle>
+              <DialogDescription>
+                Here's a summary of your current debts and earnings
+              </DialogDescription>
+            </DialogHeader>
+            <MoneyOwed user={user} />
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
