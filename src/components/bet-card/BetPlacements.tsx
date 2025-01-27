@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/dialog";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Clock, Archive, Check, X, User } from "lucide-react";
+import { Clock, Archive, Check, X, User, DollarSign } from "lucide-react";
 
 interface BetPlacementsProps {
   betId: string;
@@ -22,6 +22,7 @@ interface BetPlacement {
   option: string;
   amount: number;
   created_at: string;
+  is_paid: boolean;
   bets: {
     option_a: string;
     option_b: string;
@@ -36,7 +37,6 @@ export const BetPlacements = ({ betId, isOpen, onClose }: BetPlacementsProps) =>
   const { data: placements = [] } = useQuery<BetPlacement[]>({
     queryKey: ["bet-placements", betId],
     queryFn: async () => {
-      // First, get bet placements with bet details
       const { data: betPlacements, error: placementsError } = await supabase
         .from("bet_placements")
         .select(`
@@ -55,7 +55,6 @@ export const BetPlacements = ({ betId, isOpen, onClose }: BetPlacementsProps) =>
       if (placementsError) throw placementsError;
       if (!betPlacements) return [];
 
-      // Then, get usernames for all placements
       const userIds = betPlacements.map(placement => placement.user_id);
       const { data: profiles, error: profilesError } = await supabase
         .from("profiles")
@@ -64,7 +63,6 @@ export const BetPlacements = ({ betId, isOpen, onClose }: BetPlacementsProps) =>
 
       if (profilesError) throw profilesError;
 
-      // Merge the data
       return betPlacements.map(placement => ({
         ...placement,
         username: profiles?.find(p => p.id === placement.user_id)?.username ?? null
@@ -135,6 +133,12 @@ export const BetPlacements = ({ betId, isOpen, onClose }: BetPlacementsProps) =>
                     <status.Icon className="h-4 w-4" />
                     <span className="text-sm">{status.label}</span>
                   </div>
+                  {placement.is_paid && (
+                    <div className="flex items-center gap-1 text-green-500">
+                      <DollarSign className="h-4 w-4" />
+                      <span className="text-sm">Paid</span>
+                    </div>
+                  )}
                 </div>
                 <span className="text-sm text-muted-foreground">
                   {format(new Date(placement.created_at), "HH:mm d.M.")}

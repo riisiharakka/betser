@@ -14,6 +14,7 @@ import { Info } from "lucide-react";
 import { Bet } from "@/lib/types";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useQuery } from "@tanstack/react-query";
 
 interface BetCardProps {
   bet: Bet;
@@ -24,6 +25,24 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
   const [isEnded, setIsEnded] = useState(false);
   const [showPlacements, setShowPlacements] = useState(false);
   const { toast } = useToast();
+
+  // Query to check if user has already placed a bet
+  const { data: existingBet } = useQuery({
+    queryKey: ["user-bet", bet.id, user?.id],
+    queryFn: async () => {
+      if (!user) return null;
+      
+      const { data } = await supabase
+        .from("bet_placements")
+        .select("*")
+        .eq("bet_id", bet.id)
+        .eq("user_id", user.id)
+        .single();
+      
+      return data;
+    },
+    enabled: !!user,
+  });
 
   const handleTimeEnd = () => {
     setIsEnded(true);
@@ -56,7 +75,6 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
             return;
           }
           
-          // Handle other types of errors
           toast({
             title: "Error",
             description: errorBody.message,
@@ -88,7 +106,7 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
     }
   };
 
-  const isDisabled = !user || isEnded || bet.isResolved;
+  const isDisabled = !user || isEnded || bet.isResolved || !!existingBet;
   const totalPool = Number((bet.poolA + bet.poolB).toFixed(2));
 
   return (
@@ -104,7 +122,7 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
             poolA={bet.poolA}
             poolB={bet.poolB}
             onSelectOption={handlePlaceBet}
-            selectedOption={null}
+            selectedOption={existingBet?.option || null}
             isDisabled={isDisabled}
             eventName={bet.eventName}
           />
@@ -128,6 +146,12 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
           {!user && (
             <p className="text-sm text-muted-foreground text-center">
               Please sign in to place a bet
+            </p>
+          )}
+
+          {existingBet && (
+            <p className="text-sm text-muted-foreground text-center">
+              You have already placed a bet on this event
             </p>
           )}
 

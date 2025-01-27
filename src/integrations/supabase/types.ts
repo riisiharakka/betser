@@ -15,6 +15,7 @@ export type Database = {
           bet_id: string
           created_at: string
           id: string
+          is_paid: boolean | null
           option: string
           user_id: string
         }
@@ -23,6 +24,7 @@ export type Database = {
           bet_id: string
           created_at?: string
           id?: string
+          is_paid?: boolean | null
           option: string
           user_id: string
         }
@@ -31,6 +33,7 @@ export type Database = {
           bet_id?: string
           created_at?: string
           id?: string
+          is_paid?: boolean | null
           option?: string
           user_id?: string
         }
