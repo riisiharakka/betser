@@ -26,11 +26,7 @@ const createBetSchema = z.object({
   }).refine((date) => date > new Date(), {
     message: "End time must be in the future",
   }),
-  maxBetSize: z.string().optional().transform((val) => {
-    if (!val) return null;
-    const num = Number(val);
-    return isNaN(num) ? null : num;
-  }),
+  maxBetSize: z.string().optional(),
 });
 
 export type CreateBetFormValues = z.infer<typeof createBetSchema>;
@@ -64,6 +60,8 @@ export const CreateBetForm = () => {
         return;
       }
 
+      const maxBetSize = data.maxBetSize ? Number(data.maxBetSize) : null;
+
       const { error } = await supabase.from("bets").insert({
         event_name: data.eventName,
         option_a: data.optionA,
@@ -73,7 +71,7 @@ export const CreateBetForm = () => {
         pool_b: 0,
         is_resolved: false,
         created_by: sessionData.session.user.id,
-        max_bet_size: data.maxBetSize,
+        max_bet_size: maxBetSize,
       });
 
       if (error) throw error;
