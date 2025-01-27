@@ -29,16 +29,15 @@ interface BetPlacement {
     is_resolved: boolean;
     winner: string | null;
   };
-  profiles: {
-    username: string | null;
-  } | null;
+  username: string | null;
 }
 
 export const BetPlacements = ({ betId, isOpen, onClose }: BetPlacementsProps) => {
   const { data: placements = [] } = useQuery<BetPlacement[]>({
     queryKey: ["bet-placements", betId],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // First, get bet placements with bet details
+      const { data: betPlacements, error: placementsError } = await supabase
         .from("bet_placements")
         .select(`
           *,
@@ -48,16 +47,28 @@ export const BetPlacements = ({ betId, isOpen, onClose }: BetPlacementsProps) =>
             end_time,
             is_resolved,
             winner
-          ),
-          profiles (
-            username
           )
         `)
         .eq("bet_id", betId)
         .order("created_at", { ascending: true });
 
-      if (error) throw error;
-      return data as unknown as BetPlacement[];
+      if (placementsError) throw placementsError;
+      if (!betPlacements) return [];
+
+      // Then, get usernames for all placements
+      const userIds = betPlacements.map(placement => placement.user_id);
+      const { data: profiles, error: profilesError } = await supabase
+        .from("profiles")
+        .select("id, username")
+        .in("id", userIds);
+
+      if (profilesError) throw profilesError;
+
+      // Merge the data
+      return betPlacements.map(placement => ({
+        ...placement,
+        username: profiles?.find(p => p.id === placement.user_id)?.username ?? null
+      }));
     },
     enabled: isOpen,
   });
@@ -111,7 +122,7 @@ export const BetPlacements = ({ betId, isOpen, onClose }: BetPlacementsProps) =>
                   <div className="flex items-center gap-2">
                     <User className="h-4 w-4 text-muted-foreground" />
                     <span className="text-sm text-muted-foreground">
-                      {placement.profiles?.username || 'Anonymous'}
+                      {placement.username || 'Anonymous'}
                     </span>
                   </div>
                   <span className="text-sm font-medium">
@@ -129,7 +140,7 @@ export const BetPlacements = ({ betId, isOpen, onClose }: BetPlacementsProps) =>
                   {format(new Date(placement.created_at), "HH:mm d.M.")}
                 </span>
               </div>
-            )
+            );
           })}
           {placements.length === 0 && (
             <p className="text-center text-muted-foreground">
