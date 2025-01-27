@@ -30,7 +30,7 @@ interface BetPlacement {
     winner: string | null;
   };
   profiles: {
-    username: string;
+    username: string | null;
   } | null;
 }
 
@@ -57,7 +57,7 @@ export const BetPlacements = ({ betId, isOpen, onClose }: BetPlacementsProps) =>
         .order("created_at", { ascending: true });
 
       if (error) throw error;
-      return data as BetPlacement[];
+      return data as unknown as BetPlacement[];
     },
     enabled: isOpen,
   });
