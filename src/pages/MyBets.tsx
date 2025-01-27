@@ -10,11 +10,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { format } from "date-fns";
-import { Check, X, Clock, Archive, ArrowLeft } from "lucide-react";
+import { Check, X, Clock, Archive, ArrowLeft, Trophy, Ban } from "lucide-react";
 import { calculateOdds, formatOdds } from "@/lib/utils/odds";
 import { useToast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 interface MyBetsProps {
   user: User | null;
@@ -35,6 +36,7 @@ const MyBets = ({ user }: MyBetsProps) => {
           amount,
           option,
           created_at,
+          is_paid,
           bets (
             id,
             event_name,
@@ -73,6 +75,41 @@ const MyBets = ({ user }: MyBetsProps) => {
     );
   }
 
+  const getBetStatus = (bet: any) => {
+    const timeLeft = new Date(bet.bets.end_time).getTime() - new Date().getTime();
+    const isActive = timeLeft > 0;
+
+    if (!bet.bets.is_resolved && isActive) {
+      return {
+        label: "Open",
+        color: "bg-blue-500",
+        Icon: Clock,
+        description: "Bet is still open"
+      };
+    } else if (!bet.bets.is_resolved && !isActive) {
+      return {
+        label: "Closed",
+        color: "bg-gray-500",
+        Icon: Archive,
+        description: "Waiting for results"
+      };
+    } else if (bet.bets.winner === bet.option) {
+      return {
+        label: "Won",
+        color: "bg-green-500",
+        Icon: Trophy,
+        description: "You won this bet!"
+      };
+    } else {
+      return {
+        label: "Lost",
+        color: "bg-red-500",
+        Icon: Ban,
+        description: "Better luck next time"
+      };
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-8 sm:px-12 lg:px-16 py-8">
@@ -106,34 +143,11 @@ const MyBets = ({ user }: MyBetsProps) => {
               </TableHeader>
               <TableBody>
                 {bets.map((bet) => {
-                  const timeLeft = new Date(bet.bets.end_time).getTime() - new Date().getTime();
-                  const isActive = timeLeft > 0;
                   const { oddsA, oddsB } = calculateOdds(bet.bets.pool_a, bet.bets.pool_b);
                   const odds = bet.option === 'A' ? oddsA : oddsB;
                   const potentialWin = (bet.amount * odds).toFixed(2);
                   const option = bet.option === 'A' ? bet.bets.option_a : bet.bets.option_b;
-
-                  let status;
-                  let statusColor;
-                  let StatusIcon;
-
-                  if (!bet.bets.is_resolved && isActive) {
-                    status = "Open";
-                    statusColor = "text-blue-500";
-                    StatusIcon = Clock;
-                  } else if (!bet.bets.is_resolved && !isActive) {
-                    status = "Closed";
-                    statusColor = "text-gray-500";
-                    StatusIcon = Archive;
-                  } else if (bet.bets.winner === bet.option) {
-                    status = "Won";
-                    statusColor = "text-green-500";
-                    StatusIcon = Check;
-                  } else {
-                    status = "Lost";
-                    statusColor = "text-red-500";
-                    StatusIcon = X;
-                  }
+                  const status = getBetStatus(bet);
 
                   return (
                     <TableRow key={`${bet.bets.id}-${bet.created_at}`}>
@@ -144,9 +158,17 @@ const MyBets = ({ user }: MyBetsProps) => {
                       <TableCell>€{bet.amount.toFixed(2)}</TableCell>
                       <TableCell>€{potentialWin}</TableCell>
                       <TableCell>
-                        <div className={`flex items-center gap-2 ${statusColor}`}>
-                          <StatusIcon className="w-4 h-4" />
-                          {status}
+                        <div className="flex items-center gap-2">
+                          <Badge 
+                            variant="secondary"
+                            className={`${status.color} text-white flex items-center gap-1`}
+                          >
+                            <status.Icon className="w-3 h-3" />
+                            {status.label}
+                          </Badge>
+                          <span className="text-sm text-muted-foreground">
+                            {status.description}
+                          </span>
                         </div>
                       </TableCell>
                       <TableCell>
