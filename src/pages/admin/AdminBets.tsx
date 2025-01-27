@@ -38,23 +38,19 @@ const AdminBets = () => {
       console.log("Winning option:", winningOption);
 
       // Update the bet with the winner and mark it as resolved
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from("bets")
         .update({ 
           winner: winningOption, 
           is_resolved: true,
           updated_at: new Date().toISOString()
         })
-        .eq("id", betId)
-        .select()
-        .single();
+        .eq("id", betId);
 
       if (error) {
         console.error("Error updating bet:", error);
         throw error;
       }
-
-      console.log("Update response:", data);
 
       // Invalidate both queries to refresh the data
       await invalidateBets();
