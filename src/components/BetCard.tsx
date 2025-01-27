@@ -119,7 +119,7 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
             </div>
             {bet.maxBetSize && (
               <div className="text-sm text-muted-foreground text-center">
-                Max Bet: €{bet.maxBetSize}
+                Maximum Bet: €{bet.maxBetSize}
               </div>
             )}
             <BetTimer endTime={bet.endTime} onTimeEnd={handleTimeEnd} />
