@@ -26,19 +26,10 @@ const AdminBets = () => {
 
   const handleResolve = async (betId: string, winner: "A" | "B") => {
     try {
-      const bet = bets?.find(b => b.id === betId);
-      if (!bet) {
-        throw new Error("Bet not found");
-      }
-
-      // Map A/B to the actual option name
-      const winningOption = winner === "A" ? bet.optionA : bet.optionB;
-      console.log("Winning option:", winningOption);
-
       const { error } = await supabase
         .from("bets")
         .update({ 
-          winner: winningOption,
+          winner,
           is_resolved: true,
           updated_at: new Date().toISOString()
         })
@@ -54,7 +45,7 @@ const AdminBets = () => {
 
       toast({
         title: "Success",
-        description: `Bet has been resolved with winner: ${winningOption}`,
+        description: `Bet has been resolved with winner: ${winner}`,
       });
     } catch (error) {
       console.error("Error resolving bet:", error);
@@ -111,7 +102,9 @@ const AdminBets = () => {
                 </TableCell>
                 <TableCell>
                   {bet.isResolved ? (
-                    <span className="text-green-500">Resolved ({bet.winner})</span>
+                    <span className="text-green-500">
+                      Resolved (Option {bet.winner})
+                    </span>
                   ) : new Date(bet.endTime) > new Date() ? (
                     <span className="text-blue-500">Active</span>
                   ) : (
@@ -125,8 +118,8 @@ const AdminBets = () => {
                         <SelectValue placeholder="Select winner" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="A">{bet.optionA}</SelectItem>
-                        <SelectItem value="B">{bet.optionB}</SelectItem>
+                        <SelectItem value="A">Option A</SelectItem>
+                        <SelectItem value="B">Option B</SelectItem>
                       </SelectContent>
                     </Select>
                   )}
