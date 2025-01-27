@@ -41,11 +41,21 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
       });
 
       if (error) {
+        // Parse the error message from the response
+        let errorMessage = error.message;
+        try {
+          // The error message might be JSON stringified
+          const parsedError = JSON.parse(error.message);
+          errorMessage = parsedError.message;
+        } catch {
+          // If parsing fails, use the original message
+        }
+
         // Check if the error is related to max bet size
-        if (error.message.includes('exceeds maximum allowed size')) {
+        if (errorMessage.includes('maximum allowed size')) {
           toast({
-            title: "Error",
-            description: error.message,
+            title: "Maximum Bet Exceeded",
+            description: errorMessage,
             variant: "destructive",
           });
           return;
