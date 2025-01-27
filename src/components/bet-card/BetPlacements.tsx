@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/dialog";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Clock, Archive, Check, X } from "lucide-react";
+import { Clock, Archive, Check, X, User } from "lucide-react";
 
 interface BetPlacementsProps {
   betId: string;
@@ -29,6 +29,9 @@ export const BetPlacements = ({ betId, isOpen, onClose }: BetPlacementsProps) =>
             end_time,
             is_resolved,
             winner
+          ),
+          profiles:user_id (
+            username
           )
         `)
         .eq("bet_id", betId)
@@ -86,6 +89,12 @@ export const BetPlacements = ({ betId, isOpen, onClose }: BetPlacementsProps) =>
                 className="flex justify-between items-center p-3 rounded-lg bg-gray-800"
               >
                 <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2">
+                    <User className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm text-muted-foreground">
+                      {placement.profiles?.username || 'Anonymous'}
+                    </span>
+                  </div>
                   <span className="text-sm font-medium">
                     {placement.option === 'A' ? placement.bets.option_a : placement.bets.option_b}
                   </span>
