@@ -8,7 +8,6 @@ import type { User } from "@supabase/supabase-js";
 import { useState } from "react";
 import { BetOptions } from "./bet-card/BetOptions";
 import { BetTimer } from "./bet-card/BetTimer";
-import { PlaceBetForm } from "./bet-card/PlaceBetForm";
 import { BetPlacements } from "./bet-card/BetPlacements";
 import { Info, DollarSign, User as UserIcon } from "lucide-react";
 import { Bet } from "@/lib/types";
@@ -60,6 +59,7 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
       return data;
     },
     enabled: !!user && bet.isResolved,
+    retry: false,
   });
 
   const handleTimeEnd = () => {
