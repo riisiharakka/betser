@@ -26,6 +26,8 @@ const AdminBets = () => {
 
   const handleResolve = async (betId: string, winner: string) => {
     try {
+      console.log("Resolving bet:", betId, "with winner:", winner);
+      
       const bet = bets?.find(b => b.id === betId);
       if (!bet) {
         throw new Error("Bet not found");
@@ -33,9 +35,10 @@ const AdminBets = () => {
 
       // Map 'A' or 'B' to the actual option name
       const winningOption = winner === 'A' ? bet.optionA : bet.optionB;
+      console.log("Winning option:", winningOption);
 
       // Update the bet with the winner and mark it as resolved
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from("bets")
         .update({ 
           winner: winningOption, 
@@ -43,9 +46,15 @@ const AdminBets = () => {
           updated_at: new Date().toISOString()
         })
         .eq("id", betId)
-        .select();
+        .select()
+        .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error updating bet:", error);
+        throw error;
+      }
+
+      console.log("Update response:", data);
 
       // Invalidate both queries to refresh the data
       await invalidateBets();
