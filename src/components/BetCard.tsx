@@ -40,7 +40,18 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
         p_amount: amount,
       });
 
-      if (error) throw error;
+      if (error) {
+        // Check if the error is related to max bet size
+        if (error.message.includes('exceeds maximum allowed size')) {
+          toast({
+            title: "Error",
+            description: error.message,
+            variant: "destructive",
+          });
+          return;
+        }
+        throw error;
+      }
 
       toast({
         title: "Success",
