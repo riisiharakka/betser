@@ -24,8 +24,16 @@ const AdminBets = () => {
   const { toast } = useToast();
   const invalidateBets = useInvalidateBets();
 
-  const handleResolve = async (betId: string, winner: "A" | "B") => {
+  const handleResolve = async (betId: string, winningOption: string) => {
     try {
+      const bet = bets?.find(b => b.id === betId);
+      if (!bet) {
+        throw new Error("Bet not found");
+      }
+
+      // Map the winning option name to A/B for database storage
+      const winner = winningOption === bet.optionA ? "A" : "B";
+
       const { error } = await supabase
         .from("bets")
         .update({ 
@@ -45,7 +53,7 @@ const AdminBets = () => {
 
       toast({
         title: "Success",
-        description: `Bet has been resolved with winner: ${winner}`,
+        description: `Bet has been resolved with winner: ${winningOption}`,
       });
     } catch (error) {
       console.error("Error resolving bet:", error);
@@ -103,7 +111,7 @@ const AdminBets = () => {
                 <TableCell>
                   {bet.isResolved ? (
                     <span className="text-green-500">
-                      Resolved (Option {bet.winner})
+                      Resolved ({bet.winner === "A" ? bet.optionA : bet.optionB})
                     </span>
                   ) : new Date(bet.endTime) > new Date() ? (
                     <span className="text-blue-500">Active</span>
@@ -113,13 +121,13 @@ const AdminBets = () => {
                 </TableCell>
                 <TableCell>
                   {!bet.isResolved && new Date(bet.endTime) <= new Date() && (
-                    <Select onValueChange={(value) => handleResolve(bet.id, value as "A" | "B")}>
+                    <Select onValueChange={(value) => handleResolve(bet.id, value)}>
                       <SelectTrigger className="w-32">
                         <SelectValue placeholder="Select winner" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="A">Option A</SelectItem>
-                        <SelectItem value="B">Option B</SelectItem>
+                        <SelectItem value={bet.optionA}>{bet.optionA}</SelectItem>
+                        <SelectItem value={bet.optionB}>{bet.optionB}</SelectItem>
                       </SelectContent>
                     </Select>
                   )}
