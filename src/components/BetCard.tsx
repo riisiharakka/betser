@@ -37,7 +37,7 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
         .select("*")
         .eq("bet_id", bet.id)
         .eq("user_id", user.id)
-        .single();
+        .maybeSingle();
       
       return data;
     },
