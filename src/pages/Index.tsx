@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
 import { BetList } from "@/components/BetList";
-import { MoneyOwedList } from "@/components/MoneyOwedList";
 import { useToast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
 import type { User } from "@supabase/supabase-js";
@@ -44,12 +43,7 @@ const Index = ({ user }: IndexProps) => {
           </Button>
         </div>
 
-        <div className="grid gap-8 grid-cols-1 lg:grid-cols-[1fr_400px]">
-          <BetList user={user} />
-          <div className="space-y-8">
-            <MoneyOwedList user={user} />
-          </div>
-        </div>
+        <BetList user={user} />
       </div>
     </div>
   );

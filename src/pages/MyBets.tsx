@@ -9,9 +9,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { format } from "date-fns";
-import { Check, X, Clock, Archive, ArrowLeft, Trophy, Ban } from "lucide-react";
-import { calculateOdds, formatOdds } from "@/lib/utils/odds";
+import { Check, X, Clock, Archive, ArrowLeft, Trophy, Ban, DollarSign, User as UserIcon } from "lucide-react";
+import { calculateOdds } from "@/lib/utils/odds";
 import { useToast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -54,6 +60,25 @@ const MyBets = ({ user }: MyBetsProps) => {
 
       if (error) throw error;
       return data;
+    },
+    enabled: !!user,
+  });
+
+  const { data: moneyOwedMap } = useQuery({
+    queryKey: ["money-owed-map", user?.id],
+    queryFn: async () => {
+      if (!user) return null;
+      
+      const { data } = await supabase
+        .from("money_owed")
+        .select("*")
+        .or(`winner_id.eq.${user.id},debtor_id.eq.${user.id}`);
+      
+      // Create a map of event names to money owed records
+      return data?.reduce((acc, curr) => {
+        acc[curr.event_name] = curr;
+        return acc;
+      }, {} as Record<string, any>) || {};
     },
     enabled: !!user,
   });
@@ -110,6 +135,45 @@ const MyBets = ({ user }: MyBetsProps) => {
     }
   };
 
+  const renderMoneyOwedDetails = (eventName: string) => {
+    const moneyOwed = moneyOwedMap?.[eventName];
+    if (!moneyOwed || !user) return null;
+
+    const isDebtor = moneyOwed.debtor_id === user.id;
+    const otherParty = isDebtor ? moneyOwed.winner_username : moneyOwed.debtor_username;
+    
+    if (!otherParty) return null;
+
+    return (
+      <div className="space-y-4 border-t border-gray-800 mt-4 pt-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <UserIcon className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm text-muted-foreground">
+              {isDebtor 
+                ? `You owe ${otherParty}`
+                : `${otherParty} owes you`}
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <DollarSign className="h-4 w-4 text-muted-foreground" />
+            <span className={`text-sm font-medium ${
+              isDebtor ? 'text-red-500' : 'text-green-500'
+            }`}>
+              €{moneyOwed.winnings?.toFixed(2) || '0.00'}
+            </span>
+          </div>
+        </div>
+        {moneyOwed.bet_amount && moneyOwed.profit && (
+          <div className="text-sm text-muted-foreground">
+            Original bet: €{moneyOwed.bet_amount.toFixed(2)} | Profit: €
+            {moneyOwed.profit.toFixed(2)}
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-8 sm:px-12 lg:px-16 py-8">
@@ -133,6 +197,7 @@ const MyBets = ({ user }: MyBetsProps) => {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead className="w-[30px]"></TableHead>
                   <TableHead>Event</TableHead>
                   <TableHead>Your Pick</TableHead>
                   <TableHead>Amount</TableHead>
@@ -150,31 +215,43 @@ const MyBets = ({ user }: MyBetsProps) => {
                   const status = getBetStatus(bet);
 
                   return (
-                    <TableRow key={`${bet.bets.id}-${bet.created_at}`}>
-                      <TableCell className="font-medium">
-                        {bet.bets.event_name}
-                      </TableCell>
-                      <TableCell>{option}</TableCell>
-                      <TableCell>€{bet.amount.toFixed(2)}</TableCell>
-                      <TableCell>€{potentialWin}</TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Badge 
-                            variant="secondary"
-                            className={`${status.color} text-white flex items-center gap-1`}
-                          >
-                            <status.Icon className="w-3 h-3" />
-                            {status.label}
-                          </Badge>
-                          <span className="text-sm text-muted-foreground">
-                            {status.description}
-                          </span>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        {format(new Date(bet.created_at), "HH:mm d.M.yyyy")}
-                      </TableCell>
-                    </TableRow>
+                    <Accordion type="single" collapsible key={`${bet.bets.id}-${bet.created_at}`}>
+                      <AccordionItem value="item-1">
+                        <TableRow>
+                          <TableCell>
+                            <AccordionTrigger />
+                          </TableCell>
+                          <TableCell className="font-medium">
+                            {bet.bets.event_name}
+                          </TableCell>
+                          <TableCell>{option}</TableCell>
+                          <TableCell>€{bet.amount.toFixed(2)}</TableCell>
+                          <TableCell>€{potentialWin}</TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <Badge 
+                                variant="secondary"
+                                className={`${status.color} text-white flex items-center gap-1`}
+                              >
+                                <status.Icon className="w-3 h-3" />
+                                {status.label}
+                              </Badge>
+                              <span className="text-sm text-muted-foreground">
+                                {status.description}
+                              </span>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            {format(new Date(bet.created_at), "HH:mm d.M.yyyy")}
+                          </TableCell>
+                        </TableRow>
+                        <AccordionContent>
+                          <div className="px-6 py-4">
+                            {renderMoneyOwedDetails(bet.bets.event_name)}
+                          </div>
+                        </AccordionContent>
+                      </AccordionItem>
+                    </Accordion>
                   );
                 })}
               </TableBody>
