@@ -127,6 +127,44 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
   const isDisabled = !user || isEnded || bet.isResolved || !!existingBet;
   const totalPool = Number((bet.poolA + bet.poolB).toFixed(2));
 
+  const renderMoneyOwedDetails = () => {
+    if (!moneyOwed || !user) return null;
+
+    const isDebtor = moneyOwed.debtor_id === user.id;
+    const otherParty = isDebtor ? moneyOwed.winner_username : moneyOwed.debtor_username;
+    
+    if (!otherParty) return null;
+
+    return (
+      <div className="space-y-4 border-t border-gray-800 pt-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <UserIcon className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm text-muted-foreground">
+              {isDebtor 
+                ? `You owe ${otherParty}`
+                : `${otherParty} owes you`}
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <DollarSign className="h-4 w-4 text-muted-foreground" />
+            <span className={`text-sm font-medium ${
+              isDebtor ? 'text-red-500' : 'text-green-500'
+            }`}>
+              €{moneyOwed.winnings?.toFixed(2) || '0.00'}
+            </span>
+          </div>
+        </div>
+        {moneyOwed.bet_amount && moneyOwed.profit && (
+          <div className="text-sm text-muted-foreground">
+            Original bet: €{moneyOwed.bet_amount.toFixed(2)} | Profit: €
+            {moneyOwed.profit.toFixed(2)}
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
     <>
       <Card className="max-w-2xl mx-auto bg-[#0A0B0F] border-gray-800">
@@ -179,32 +217,7 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
               <p className="text-lg text-muted-foreground text-center">
                 Winner: {bet.winner === "A" ? bet.optionA : bet.optionB}
               </p>
-              {moneyOwed && (
-                <div className="space-y-4 border-t border-gray-800 pt-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <UserIcon className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm text-muted-foreground">
-                        {moneyOwed.debtor_id === user?.id
-                          ? `You owe ${moneyOwed.winner_username}`
-                          : `${moneyOwed.debtor_username} owes you`}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <DollarSign className="h-4 w-4 text-muted-foreground" />
-                      <span className={`text-sm font-medium ${
-                        moneyOwed.debtor_id === user?.id ? 'text-red-500' : 'text-green-500'
-                      }`}>
-                        €{moneyOwed.winnings.toFixed(2)}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    Original bet: €{moneyOwed.bet_amount.toFixed(2)} | Profit: €
-                    {moneyOwed.profit.toFixed(2)}
-                  </div>
-                </div>
-              )}
+              {renderMoneyOwedDetails()}
             </>
           )}
         </CardContent>
