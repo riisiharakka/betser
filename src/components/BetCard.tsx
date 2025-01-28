@@ -45,7 +45,7 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
   const { data: moneyOwed } = useQuery({
     queryKey: ["money-owed", bet.id, user?.id],
     queryFn: async () => {
-      if (!user || !bet.isResolved) return null;
+      if (!user) return null;
       
       const { data } = await supabase
         .from("money_owed")
@@ -57,7 +57,7 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
       console.log("Money owed data:", data);
       return data;
     },
-    enabled: !!user && bet.isResolved,
+    enabled: !!user,
   });
 
   const handleTimeEnd = () => {
@@ -219,6 +219,8 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
               {renderMoneyOwedDetails()}
             </>
           )}
+
+          {!bet.isResolved && moneyOwed && renderMoneyOwedDetails()}
         </CardContent>
       </Card>
 
