@@ -25,6 +25,25 @@ const MyBets = ({ user }: MyBetsProps) => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
+  const { data: profile } = useQuery({
+    queryKey: ["profile", user?.id],
+    queryFn: async () => {
+      if (!user) return null;
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("username")
+        .eq("id", user.id)
+        .single();
+
+      if (error) {
+        console.error("Error fetching profile:", error);
+        return null;
+      }
+      return data;
+    },
+    enabled: !!user,
+  });
+
   const { data: bets, isLoading } = useQuery({
     queryKey: ["myBets", user?.id],
     queryFn: async () => {
@@ -122,65 +141,72 @@ const MyBets = ({ user }: MyBetsProps) => {
           Back
         </Button>
 
-        <h1 className="text-4xl font-bold mb-8">My Bets</h1>
-        
-        {!bets?.length ? (
-          <div className="text-center text-muted-foreground py-12">
-            You haven't placed any bets yet.
+        <div className="space-y-6">
+          <div>
+            <h2 className="text-2xl font-medium text-foreground">
+              Hello, {profile?.username || 'there'}
+            </h2>
+            <h1 className="text-4xl font-bold mt-2">My Bets</h1>
           </div>
-        ) : (
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Event</TableHead>
-                  <TableHead>Your Pick</TableHead>
-                  <TableHead>Amount</TableHead>
-                  <TableHead>Potential Win</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Date</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {bets.map((bet) => {
-                  const { oddsA, oddsB } = calculateOdds(bet.bets.pool_a, bet.bets.pool_b);
-                  const odds = bet.option === 'A' ? oddsA : oddsB;
-                  const potentialWin = (bet.amount * odds).toFixed(2);
-                  const option = bet.option === 'A' ? bet.bets.option_a : bet.bets.option_b;
-                  const status = getBetStatus(bet);
 
-                  return (
-                    <TableRow key={`${bet.bets.id}-${bet.created_at}`}>
-                      <TableCell className="font-medium">
-                        {bet.bets.event_name}
-                      </TableCell>
-                      <TableCell>{option}</TableCell>
-                      <TableCell>€{bet.amount.toFixed(2)}</TableCell>
-                      <TableCell>€{potentialWin}</TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Badge 
-                            variant="secondary"
-                            className={`${status.color} text-white flex items-center gap-1`}
-                          >
-                            <status.Icon className="w-3 h-3" />
-                            {status.label}
-                          </Badge>
-                          <span className="text-sm text-muted-foreground">
-                            {status.description}
-                          </span>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        {format(new Date(bet.created_at), "HH:mm d.M.yyyy")}
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          </div>
-        )}
+          {!bets?.length ? (
+            <div className="text-center text-muted-foreground py-12">
+              You haven't placed any bets yet.
+            </div>
+          ) : (
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Event</TableHead>
+                    <TableHead>Your Pick</TableHead>
+                    <TableHead>Amount</TableHead>
+                    <TableHead>Potential Win</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Date</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {bets.map((bet) => {
+                    const { oddsA, oddsB } = calculateOdds(bet.bets.pool_a, bet.bets.pool_b);
+                    const odds = bet.option === 'A' ? oddsA : oddsB;
+                    const potentialWin = (bet.amount * odds).toFixed(2);
+                    const option = bet.option === 'A' ? bet.bets.option_a : bet.bets.option_b;
+                    const status = getBetStatus(bet);
+
+                    return (
+                      <TableRow key={`${bet.bets.id}-${bet.created_at}`}>
+                        <TableCell className="font-medium">
+                          {bet.bets.event_name}
+                        </TableCell>
+                        <TableCell>{option}</TableCell>
+                        <TableCell>€{bet.amount.toFixed(2)}</TableCell>
+                        <TableCell>€{potentialWin}</TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <Badge 
+                              variant="secondary"
+                              className={`${status.color} text-white flex items-center gap-1`}
+                            >
+                              <status.Icon className="w-3 h-3" />
+                              {status.label}
+                            </Badge>
+                            <span className="text-sm text-muted-foreground">
+                              {status.description}
+                            </span>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          {format(new Date(bet.created_at), "HH:mm d.M.yyyy")}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
