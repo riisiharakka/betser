@@ -54,7 +54,7 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
         .or(`winner_id.eq.${user.id},debtor_id.eq.${user.id}`)
         .maybeSingle();
       
-      console.log("Money owed data:", data);
+      console.log("Money owed data for event:", bet.eventName, data);
       return data;
     },
     enabled: !!user && bet.isResolved,
