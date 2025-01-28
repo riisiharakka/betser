@@ -52,14 +52,14 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
       const { data } = await supabase
         .from("money_owed")
         .select("*")
-        .or(`winner_id.eq.${user.id},debtor_id.eq.${user.id}`)
         .eq("event_name", bet.eventName)
+        .or(`winner_id.eq.${user.id},debtor_id.eq.${user.id}`)
         .maybeSingle();
       
+      console.log("Money owed data:", data); // Debug log
       return data;
     },
     enabled: !!user && bet.isResolved,
-    retry: false,
   });
 
   const handleTimeEnd = () => {
@@ -124,11 +124,10 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
     }
   };
 
-  const isDisabled = !user || isEnded || bet.isResolved || !!existingBet;
-  const totalPool = Number((bet.poolA + bet.poolB).toFixed(2));
-
   const renderMoneyOwedDetails = () => {
     if (!moneyOwed || !user) return null;
+
+    console.log("Rendering money owed details:", moneyOwed); // Debug log
 
     const isDebtor = moneyOwed.debtor_id === user.id;
     const otherParty = isDebtor ? moneyOwed.winner_username : moneyOwed.debtor_username;
@@ -136,7 +135,7 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
     if (!otherParty) return null;
 
     return (
-      <div className="space-y-4 border-t border-gray-800 pt-4">
+      <div className="space-y-4 border-t border-gray-800 pt-4 mt-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <UserIcon className="h-4 w-4 text-muted-foreground" />
@@ -164,6 +163,9 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
       </div>
     );
   };
+
+  const isDisabled = !user || isEnded || bet.isResolved || !!existingBet;
+  const totalPool = Number((bet.poolA + bet.poolB).toFixed(2));
 
   return (
     <>
