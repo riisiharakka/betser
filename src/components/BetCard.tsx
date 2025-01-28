@@ -51,7 +51,7 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
         .from("money_owed")
         .select("*")
         .eq("event_name", bet.eventName)
-        .eq("debtor_id", user.id)  // Only get records where the current user is the debtor
+        .or(`winner_id.eq.${user.id},debtor_id.eq.${user.id}`)
         .maybeSingle();
       
       console.log("Money owed data:", data);
@@ -127,18 +127,27 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
 
     console.log("Rendering money owed details:", moneyOwed);
 
+    const isDebtor = moneyOwed.debtor_id === user.id;
+    const otherParty = isDebtor ? moneyOwed.winner_username : moneyOwed.debtor_username;
+    
+    if (!otherParty) return null;
+
     return (
       <div className="space-y-4 border-t border-gray-800 pt-4 mt-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <UserIcon className="h-4 w-4 text-muted-foreground" />
             <span className="text-sm text-muted-foreground">
-              You owe {moneyOwed.winner_username}
+              {isDebtor 
+                ? `You owe ${otherParty}`
+                : `${otherParty} owes you`}
             </span>
           </div>
           <div className="flex items-center gap-2">
             <DollarSign className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm font-medium text-red-500">
+            <span className={`text-sm font-medium ${
+              isDebtor ? 'text-red-500' : 'text-green-500'
+            }`}>
               €{moneyOwed.profit?.toFixed(2) || '0.00'}
             </span>
           </div>
