@@ -25,7 +25,6 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
   const [showPlacements, setShowPlacements] = useState(false);
   const { toast } = useToast();
 
-  // Query to check if user has already placed a bet
   const { data: existingBet } = useQuery({
     queryKey: ["user-bet", bet.id, user?.id],
     queryFn: async () => {
@@ -56,7 +55,7 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
         .or(`winner_id.eq.${user.id},debtor_id.eq.${user.id}`)
         .maybeSingle();
       
-      console.log("Money owed data:", data); // Debug log
+      console.log("Money owed data:", data);
       return data;
     },
     enabled: !!user && bet.isResolved,
@@ -127,7 +126,7 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
   const renderMoneyOwedDetails = () => {
     if (!moneyOwed || !user) return null;
 
-    console.log("Rendering money owed details:", moneyOwed); // Debug log
+    console.log("Rendering money owed details:", moneyOwed);
 
     const isDebtor = moneyOwed.debtor_id === user.id;
     const otherParty = isDebtor ? moneyOwed.winner_username : moneyOwed.debtor_username;
@@ -150,14 +149,13 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
             <span className={`text-sm font-medium ${
               isDebtor ? 'text-red-500' : 'text-green-500'
             }`}>
-              €{moneyOwed.winnings?.toFixed(2) || '0.00'}
+              €{moneyOwed.profit?.toFixed(2) || '0.00'}
             </span>
           </div>
         </div>
-        {moneyOwed.bet_amount && moneyOwed.profit && (
+        {moneyOwed.bet_amount && (
           <div className="text-sm text-muted-foreground">
-            Original bet: €{moneyOwed.bet_amount.toFixed(2)} | Profit: €
-            {moneyOwed.profit.toFixed(2)}
+            Original bet: €{moneyOwed.bet_amount.toFixed(2)}
           </div>
         )}
       </div>
@@ -232,4 +230,3 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
       />
     </>
   );
-};
