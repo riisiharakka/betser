@@ -129,8 +129,9 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
 
     const isDebtor = moneyOwed.debtor_id === user.id;
     const otherParty = isDebtor ? moneyOwed.winner_username : moneyOwed.debtor_username;
+    const amount = moneyOwed.profit;
     
-    if (!otherParty) return null;
+    if (!otherParty || !amount) return null;
 
     return (
       <div className="space-y-4 border-t border-gray-800 pt-4 mt-4">
@@ -148,7 +149,7 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
             <span className={`text-sm font-medium ${
               isDebtor ? 'text-red-500' : 'text-green-500'
             }`}>
-              €{moneyOwed.profit?.toFixed(2) || '0.00'}
+              €{Math.abs(amount).toFixed(2)}
             </span>
           </div>
         </div>
