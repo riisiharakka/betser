@@ -9,7 +9,7 @@ import { useState } from "react";
 import { BetOptions } from "./bet-card/BetOptions";
 import { BetTimer } from "./bet-card/BetTimer";
 import { BetPlacements } from "./bet-card/BetPlacements";
-import { Info, DollarSign, User as UserIcon } from "lucide-react";
+import { Info, DollarSign, User as UserIcon, Users } from "lucide-react";
 import { Bet } from "@/lib/types";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -42,7 +42,7 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
     enabled: !!user,
   });
 
-  const { data: moneyOwed } = useQuery({
+  const { data: moneyOwedList } = useQuery({
     queryKey: ["money-owed", bet.id, user?.id],
     queryFn: async () => {
       if (!user || !bet.isResolved) return null;
@@ -51,8 +51,7 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
         .from("money_owed")
         .select("*")
         .eq("event_name", bet.eventName)
-        .or(`winner_id.eq.${user.id},debtor_id.eq.${user.id}`)
-        .maybeSingle();
+        .or(`winner_id.eq.${user.id},debtor_id.eq.${user.id}`);
       
       console.log("Money owed data for event:", bet.eventName, data);
       return data;
@@ -123,39 +122,52 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
   };
 
   const renderMoneyOwedDetails = () => {
-    if (!moneyOwed || !user) return null;
+    if (!moneyOwedList || !user || !moneyOwedList.length) return null;
 
-    console.log("Rendering money owed details:", moneyOwed);
+    console.log("Rendering money owed details:", moneyOwedList);
 
-    const isDebtor = moneyOwed.debtor_id === user.id;
-    const otherParty = isDebtor ? moneyOwed.winner_username : moneyOwed.debtor_username;
-    const amount = moneyOwed.profit;
+    const winningTransactions = moneyOwedList.filter(t => t.winner_id === user.id);
+    const debtTransactions = moneyOwedList.filter(t => t.debtor_id === user.id);
     
-    if (!otherParty || amount === null || amount === undefined) return null;
-
     return (
       <div className="space-y-4 border-t border-gray-800 pt-4 mt-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <UserIcon className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm text-muted-foreground">
-              {isDebtor 
-                ? `You owe ${otherParty}`
-                : `${otherParty} owes you`}
-            </span>
+        {winningTransactions.length > 0 && (
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Users className="h-4 w-4" />
+              <span>Users who owe you:</span>
+            </div>
+            {winningTransactions.map((transaction, index) => (
+              <div key={index} className="flex items-center justify-between pl-6">
+                <span className="text-sm">{transaction.debtor_username}</span>
+                <span className="text-sm text-green-500">
+                  €{Math.abs(transaction.profit).toFixed(2)}
+                </span>
+              </div>
+            ))}
           </div>
-          <div className="flex items-center gap-2">
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-            <span className={`text-sm font-medium ${
-              isDebtor ? 'text-red-500' : 'text-green-500'
-            }`}>
-              €{Math.abs(amount).toFixed(2)}
-            </span>
+        )}
+
+        {debtTransactions.length > 0 && (
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Users className="h-4 w-4" />
+              <span>You owe:</span>
+            </div>
+            {debtTransactions.map((transaction, index) => (
+              <div key={index} className="flex items-center justify-between pl-6">
+                <span className="text-sm">{transaction.winner_username}</span>
+                <span className="text-sm text-red-500">
+                  €{Math.abs(transaction.profit).toFixed(2)}
+                </span>
+              </div>
+            ))}
           </div>
-        </div>
-        {moneyOwed.bet_amount && (
+        )}
+
+        {existingBet && (
           <div className="text-sm text-muted-foreground">
-            Original bet: €{moneyOwed.bet_amount.toFixed(2)}
+            Your bet: €{existingBet.amount.toFixed(2)}
           </div>
         )}
       </div>
