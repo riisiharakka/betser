@@ -42,7 +42,6 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
     enabled: !!user,
   });
 
-  // Query to get money owed information for this bet
   const { data: moneyOwed } = useQuery({
     queryKey: ["money-owed", bet.id, user?.id],
     queryFn: async () => {
@@ -230,3 +229,4 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
       />
     </>
   );
+};
