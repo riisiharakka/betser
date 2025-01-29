@@ -146,7 +146,7 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
               <div key={index} className="flex items-center justify-between pl-6">
                 <span className="text-sm">{transaction.debtor_username}</span>
                 <span className="text-sm text-green-500">
-                  {bet.currency}{Math.abs(transaction.profit).toFixed(2)}
+                  {Math.abs(transaction.profit).toFixed(2)} {bet.currency}
                 </span>
               </div>
             ))}
@@ -163,7 +163,7 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
               <div key={index} className="flex items-center justify-between pl-6">
                 <span className="text-sm">{transaction.winner_username}</span>
                 <span className="text-sm text-red-500">
-                  {bet.currency}{Math.abs(transaction.profit).toFixed(2)}
+                  {Math.abs(transaction.profit).toFixed(2)} {bet.currency}
                 </span>
               </div>
             ))}
@@ -172,7 +172,7 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
 
         {existingBet && (
           <div className="text-sm text-muted-foreground">
-            Your bet: {bet.currency}{existingBet.amount.toFixed(2)}
+            Your bet: {existingBet.amount.toFixed(2)} {bet.currency}
           </div>
         )}
       </div>
@@ -207,12 +207,12 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
               className="text-lg text-muted-foreground text-center flex items-center justify-center gap-2 cursor-pointer hover:text-white transition-colors"
               onClick={() => setShowPlacements(true)}
             >
-              Total Pool: {bet.currency}{totalPool}
+              Total Pool: {totalPool} {bet.currency}
               <Info className="h-4 w-4" />
             </div>
             {bet.maxBetSize && (
               <div className="text-lg text-muted-foreground text-center">
-                Maximum Bet: {bet.currency}{bet.maxBetSize}
+                Maximum Bet: {bet.maxBetSize} {bet.currency}
               </div>
             )}
             <BetTimer endTime={bet.endTime} onTimeEnd={handleTimeEnd} />
@@ -249,3 +249,5 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
     </>
   );
 };
+
+export default BetCard;
