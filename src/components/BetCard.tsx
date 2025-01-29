@@ -7,13 +7,14 @@ import {
 import type { User } from "@supabase/supabase-js";
 import { useState } from "react";
 import { BetOptions } from "./bet-card/BetOptions";
-import { BetTimer } from "./bet-card/BetTimer";
 import { BetPlacements } from "./bet-card/BetPlacements";
-import { Info, DollarSign, User as UserIcon, Users } from "lucide-react";
-import { Bet } from "@/lib/types";
-import { supabase } from "@/integrations/supabase/client";
+import { BetInformation } from "./bet-card/BetInformation";
+import { BetStatus } from "./bet-card/BetStatus";
+import { MoneyOwedDetails } from "./bet-card/MoneyOwedDetails";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Bet } from "@/lib/types";
 
 interface BetCardProps {
   bet: Bet;
@@ -40,28 +41,6 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
       return data;
     },
     enabled: !!user,
-  });
-
-  const { data: moneyOwedList } = useQuery({
-    queryKey: ["money-owed", bet.id, user?.id],
-    queryFn: async () => {
-      if (!user || !bet.isResolved) return null;
-      
-      const { data, error } = await supabase
-        .from("money_owed")
-        .select("*")
-        .eq("event_name", bet.eventName)
-        .or(`winner_id.eq.${user.id},debtor_id.eq.${user.id}`);
-      
-      if (error) {
-        console.error("Error fetching money owed:", error);
-        return null;
-      }
-      
-      console.log("Money owed data for event:", bet.eventName, data);
-      return data;
-    },
-    enabled: !!user && bet.isResolved,
   });
 
   const handleTimeEnd = () => {
@@ -126,59 +105,6 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
     }
   };
 
-  const renderMoneyOwedDetails = () => {
-    if (!moneyOwedList || !user || !moneyOwedList.length) return null;
-
-    console.log("Rendering money owed details:", moneyOwedList);
-
-    const winningTransactions = moneyOwedList.filter(t => t.winner_id === user.id);
-    const debtTransactions = moneyOwedList.filter(t => t.debtor_id === user.id);
-    
-    return (
-      <div className="space-y-4 border-t border-gray-800 pt-4 mt-4">
-        {winningTransactions.length > 0 && (
-          <div className="space-y-2">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Users className="h-4 w-4" />
-              <span>Users who owe you:</span>
-            </div>
-            {winningTransactions.map((transaction, index) => (
-              <div key={index} className="flex items-center justify-between pl-6">
-                <span className="text-sm">{transaction.debtor_username}</span>
-                <span className="text-sm text-green-500">
-                  {Math.abs(transaction.profit).toFixed(2)} {bet.currency}
-                </span>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {debtTransactions.length > 0 && (
-          <div className="space-y-2">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Users className="h-4 w-4" />
-              <span>You owe:</span>
-            </div>
-            {debtTransactions.map((transaction, index) => (
-              <div key={index} className="flex items-center justify-between pl-6">
-                <span className="text-sm">{transaction.winner_username}</span>
-                <span className="text-sm text-red-500">
-                  {Math.abs(transaction.profit).toFixed(2)} {bet.currency}
-                </span>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {existingBet && (
-          <div className="text-sm text-muted-foreground">
-            Your bet: {existingBet.amount.toFixed(2)} {bet.currency}
-          </div>
-        )}
-      </div>
-    );
-  };
-
   const isDisabled = !user || isEnded || bet.isResolved || !!existingBet;
   const totalPool = Number((bet.poolA + bet.poolB).toFixed(2));
 
@@ -202,21 +128,14 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
             currency={bet.currency}
           />
 
-          <div className="space-y-2">
-            <div 
-              className="text-lg text-muted-foreground text-center flex items-center justify-center gap-2 cursor-pointer hover:text-white transition-colors"
-              onClick={() => setShowPlacements(true)}
-            >
-              Total Pool: {totalPool} {bet.currency}
-              <Info className="h-4 w-4" />
-            </div>
-            {bet.maxBetSize && (
-              <div className="text-lg text-muted-foreground text-center">
-                Maximum Bet: {bet.maxBetSize} {bet.currency}
-              </div>
-            )}
-            <BetTimer endTime={bet.endTime} onTimeEnd={handleTimeEnd} />
-          </div>
+          <BetInformation
+            totalPool={totalPool}
+            maxBetSize={bet.maxBetSize}
+            currency={bet.currency}
+            endTime={bet.endTime}
+            onTimeEnd={handleTimeEnd}
+            onShowPlacements={() => setShowPlacements(true)}
+          />
 
           {!user && (
             <p className="text-sm text-muted-foreground text-center">
@@ -230,14 +149,20 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
             </p>
           )}
 
-          {bet.isResolved && (
-            <>
-              <p className="text-lg text-muted-foreground text-center">
-                Winner: {bet.winner === "A" ? bet.optionA : bet.optionB}
-              </p>
-              {renderMoneyOwedDetails()}
-            </>
-          )}
+          <BetStatus
+            isResolved={bet.isResolved}
+            winner={bet.winner}
+            optionA={bet.optionA}
+            optionB={bet.optionB}
+          />
+
+          <MoneyOwedDetails
+            eventName={bet.eventName}
+            isResolved={bet.isResolved}
+            user={user}
+            existingBet={existingBet}
+            currency={bet.currency}
+          />
         </CardContent>
       </Card>
 
