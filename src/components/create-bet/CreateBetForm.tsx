@@ -10,14 +10,23 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-  FormDescription,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { DateTimePicker } from "./DateTimePicker";
+import { WagerFields } from "./WagerFields";
+import { DareFields } from "./DareFields";
 
 const createBetSchema = z.object({
+  type: z.enum(["wager", "dare"]),
   eventName: z.string().min(1, "Event name is required"),
   optionA: z.string().min(1, "Option A is required"),
   optionB: z.string().min(1, "Option B is required"),
@@ -27,7 +36,16 @@ const createBetSchema = z.object({
     message: "End time must be in the future",
   }),
   maxBetSize: z.string().optional(),
-  currency: z.string().min(1, "Currency is required").default("€"),
+  currency: z.string().optional(),
+  stake: z.string().optional(),
+}).refine((data) => {
+  if (data.type === "wager") {
+    return data.currency !== undefined && data.stake === undefined;
+  } else {
+    return data.stake !== undefined && data.currency === undefined && data.maxBetSize === undefined;
+  }
+}, {
+  message: "Invalid combination of fields for the selected type",
 });
 
 export type CreateBetFormValues = z.infer<typeof createBetSchema>;
@@ -39,10 +57,11 @@ export const CreateBetForm = () => {
   const form = useForm<CreateBetFormValues>({
     resolver: zodResolver(createBetSchema),
     defaultValues: {
+      type: "wager",
       eventName: "",
       optionA: "",
       optionB: "",
-      endTime: new Date(Date.now() + 24 * 60 * 60 * 1000), // Default to tomorrow
+      endTime: new Date(Date.now() + 24 * 60 * 60 * 1000),
       maxBetSize: "",
       currency: "€",
     },
@@ -62,8 +81,6 @@ export const CreateBetForm = () => {
         return;
       }
 
-      const maxBetSize = data.maxBetSize ? Number(data.maxBetSize) : null;
-
       const { error } = await supabase.from("bets").insert({
         event_name: data.eventName,
         option_a: data.optionA,
@@ -73,8 +90,10 @@ export const CreateBetForm = () => {
         pool_b: 0,
         is_resolved: false,
         created_by: sessionData.session.user.id,
-        max_bet_size: maxBetSize,
-        currency: data.currency,
+        max_bet_size: data.type === "wager" ? Number(data.maxBetSize) || null : null,
+        currency: data.type === "wager" ? data.currency : null,
+        type: data.type,
+        stake: data.type === "dare" ? data.stake : null,
       });
 
       if (error) throw error;
@@ -94,9 +113,36 @@ export const CreateBetForm = () => {
     }
   };
 
+  const betType = form.watch("type");
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <FormField
+          control={form.control}
+          name="type"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Type</FormLabel>
+              <Select
+                onValueChange={field.onChange}
+                defaultValue={field.value}
+              >
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select bet type" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="wager">Wager</SelectItem>
+                  <SelectItem value="dare">Dare</SelectItem>
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         <FormField
           control={form.control}
           name="eventName"
@@ -156,46 +202,11 @@ export const CreateBetForm = () => {
           )}
         />
 
-        <FormField
-          control={form.control}
-          name="maxBetSize"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Maximum Bet Size (Optional)</FormLabel>
-              <FormControl>
-                <Input 
-                  type="number" 
-                  placeholder="Enter maximum bet size" 
-                  {...field} 
-                />
-              </FormControl>
-              <FormDescription>
-                Leave empty for no maximum bet size limit
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="currency"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Currency</FormLabel>
-              <FormControl>
-                <Input 
-                  placeholder="€, beers, coffees, etc." 
-                  {...field} 
-                />
-              </FormControl>
-              <FormDescription>
-                Enter € for euros or any custom unit (e.g., beers, coffees)
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        {betType === "wager" ? (
+          <WagerFields form={form} />
+        ) : (
+          <DareFields form={form} />
+        )}
 
         <div className="flex gap-4">
           <Button
