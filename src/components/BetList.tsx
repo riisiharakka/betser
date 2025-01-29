@@ -78,9 +78,12 @@ export const BetList = ({ user }: BetListProps) => {
     );
   }
 
+  // Filter out hidden bets from the main page
+  const visibleBets = bets.filter(bet => !bet.isHidden);
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 [&>*]:w-full">
-      {bets.map((bet) => (
+      {visibleBets.map((bet) => (
         <div key={bet.id} className="w-full">
           <BetCard
             bet={{
@@ -94,7 +97,8 @@ export const BetList = ({ user }: BetListProps) => {
               isResolved: bet.isResolved,
               winner: bet.winner,
               createdBy: bet.createdBy,
-              maxBetSize: bet.maxBetSize
+              maxBetSize: bet.maxBetSize,
+              isHidden: bet.isHidden
             }}
             user={user}
           />
