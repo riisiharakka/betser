@@ -61,7 +61,7 @@ export const BetOptions = ({
     
     // Validate against maxBetSize if it exists
     if (value && maxBetSize && Number(value) > maxBetSize) {
-      setError(`Maximum bet size is ${currency}${maxBetSize}`);
+      setError(`Maximum bet size is ${maxBetSize} ${currency}`);
     }
   };
 
@@ -69,7 +69,7 @@ export const BetOptions = ({
     if (selectedBetOption && amount) {
       const betAmount = Number(amount);
       if (maxBetSize && betAmount > maxBetSize) {
-        setError(`Maximum bet size is ${currency}${maxBetSize}`);
+        setError(`Maximum bet size is ${maxBetSize} ${currency}`);
         return;
       }
       
@@ -120,13 +120,22 @@ export const BetOptions = ({
           </DialogHeader>
           <div className="py-6">
             <p className="text-muted-foreground mb-6">
-              Place your bet on {eventName} for option{" "}
-              {selectedBetOption === "A" ? optionA : optionB}
+              Place your bet on <span className="font-bold">{eventName}</span> for option{" "}
+              <span className="font-bold">
+                {selectedBetOption === "A" ? optionA : optionB}
+              </span>
             </p>
             <div className="space-y-2">
-              <label className="text-lg">
-                Bet Amount ({currency}){maxBetSize ? ` (Max: ${currency}${maxBetSize})` : ''}
-              </label>
+              <div className="space-y-1">
+                <label className="text-lg">
+                  Bet Amount ({currency})
+                </label>
+                {maxBetSize && (
+                  <div className="text-sm text-muted-foreground">
+                    Max: {maxBetSize} {currency}
+                  </div>
+                )}
+              </div>
               <Input
                 type="number"
                 value={amount}
