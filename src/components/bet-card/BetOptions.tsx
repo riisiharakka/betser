@@ -19,6 +19,7 @@ interface BetOptionsProps {
   isDisabled: boolean;
   eventName: string;
   maxBetSize?: number | null;
+  currency: string;
 }
 
 export const BetOptions = ({
@@ -31,6 +32,7 @@ export const BetOptions = ({
   isDisabled,
   eventName,
   maxBetSize,
+  currency,
 }: BetOptionsProps) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedBetOption, setSelectedBetOption] = useState<string | null>(null);
@@ -59,7 +61,7 @@ export const BetOptions = ({
     
     // Validate against maxBetSize if it exists
     if (value && maxBetSize && Number(value) > maxBetSize) {
-      setError(`Maximum bet size is €${maxBetSize}`);
+      setError(`Maximum bet size is ${currency}${maxBetSize}`);
     }
   };
 
@@ -67,7 +69,7 @@ export const BetOptions = ({
     if (selectedBetOption && amount) {
       const betAmount = Number(amount);
       if (maxBetSize && betAmount > maxBetSize) {
-        setError(`Maximum bet size is €${maxBetSize}`);
+        setError(`Maximum bet size is ${currency}${maxBetSize}`);
         return;
       }
       
@@ -123,7 +125,7 @@ export const BetOptions = ({
             </p>
             <div className="space-y-2">
               <label className="text-lg">
-                Bet Amount (€){maxBetSize ? ` (Max: €${maxBetSize})` : ''}
+                Bet Amount ({currency}){maxBetSize ? ` (Max: ${currency}${maxBetSize})` : ''}
               </label>
               <Input
                 type="number"

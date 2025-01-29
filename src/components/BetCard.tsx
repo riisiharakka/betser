@@ -89,7 +89,7 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
             const maxSize = errorBody.message.match(/\d+/)[0];
             toast({
               title: "Bet Size Limit Exceeded",
-              description: `Maximum bet size for this event is €${maxSize}. Please enter a smaller amount.`,
+              description: `Maximum bet size for this event is ${bet.currency}${maxSize}. Please enter a smaller amount.`,
               variant: "destructive",
             });
             return;
@@ -146,7 +146,7 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
               <div key={index} className="flex items-center justify-between pl-6">
                 <span className="text-sm">{transaction.debtor_username}</span>
                 <span className="text-sm text-green-500">
-                  €{Math.abs(transaction.profit).toFixed(2)}
+                  {bet.currency}{Math.abs(transaction.profit).toFixed(2)}
                 </span>
               </div>
             ))}
@@ -163,7 +163,7 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
               <div key={index} className="flex items-center justify-between pl-6">
                 <span className="text-sm">{transaction.winner_username}</span>
                 <span className="text-sm text-red-500">
-                  €{Math.abs(transaction.profit).toFixed(2)}
+                  {bet.currency}{Math.abs(transaction.profit).toFixed(2)}
                 </span>
               </div>
             ))}
@@ -172,7 +172,7 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
 
         {existingBet && (
           <div className="text-sm text-muted-foreground">
-            Your bet: €{existingBet.amount.toFixed(2)}
+            Your bet: {bet.currency}{existingBet.amount.toFixed(2)}
           </div>
         )}
       </div>
@@ -199,6 +199,7 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
             isDisabled={isDisabled}
             eventName={bet.eventName}
             maxBetSize={bet.maxBetSize}
+            currency={bet.currency}
           />
 
           <div className="space-y-2">
@@ -206,12 +207,12 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
               className="text-lg text-muted-foreground text-center flex items-center justify-center gap-2 cursor-pointer hover:text-white transition-colors"
               onClick={() => setShowPlacements(true)}
             >
-              Total Pool: €{totalPool}
+              Total Pool: {bet.currency}{totalPool}
               <Info className="h-4 w-4" />
             </div>
             {bet.maxBetSize && (
               <div className="text-lg text-muted-foreground text-center">
-                Maximum Bet: €{bet.maxBetSize}
+                Maximum Bet: {bet.currency}{bet.maxBetSize}
               </div>
             )}
             <BetTimer endTime={bet.endTime} onTimeEnd={handleTimeEnd} />
