@@ -25,7 +25,8 @@ export const useBets = () => {
         winner: bet.winner,
         createdBy: bet.created_by,
         maxBetSize: bet.max_bet_size ? Number(bet.max_bet_size) : null,
-        isHidden: bet.is_hidden
+        isHidden: bet.is_hidden,
+        currency: bet.currency
       }));
     },
     staleTime: 0, // This ensures we always get fresh data
