@@ -24,7 +24,8 @@ export const useBets = () => {
         isResolved: bet.is_resolved,
         winner: bet.winner,
         createdBy: bet.created_by,
-        maxBetSize: bet.max_bet_size ? Number(bet.max_bet_size) : null
+        maxBetSize: bet.max_bet_size ? Number(bet.max_bet_size) : null,
+        isHidden: bet.is_hidden
       }));
     },
     staleTime: 0, // This ensures we always get fresh data

@@ -18,6 +18,8 @@ import {
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 const AdminBets = () => {
   const { data: bets, isLoading } = useBets();
@@ -31,7 +33,6 @@ const AdminBets = () => {
         throw new Error("Bet not found");
       }
 
-      // Map the winning option name to A/B for database storage
       const winner = winningOption === bet.optionA ? "A" : "B";
 
       const { error } = await supabase
@@ -48,7 +49,6 @@ const AdminBets = () => {
         throw error;
       }
 
-      // Invalidate queries to refresh the data
       await invalidateBets();
 
       toast({
@@ -60,6 +60,37 @@ const AdminBets = () => {
       toast({
         title: "Error",
         description: "Failed to resolve bet. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleToggleHidden = async (betId: string, currentValue: boolean) => {
+    try {
+      const { error } = await supabase
+        .from("bets")
+        .update({ 
+          is_hidden: !currentValue,
+          updated_at: new Date().toISOString()
+        })
+        .eq("id", betId);
+
+      if (error) {
+        console.error("Error updating bet visibility:", error);
+        throw error;
+      }
+
+      await invalidateBets();
+
+      toast({
+        title: "Success",
+        description: `Bet has been ${!currentValue ? 'hidden from' : 'shown on'} the main page`,
+      });
+    } catch (error) {
+      console.error("Error toggling bet visibility:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update bet visibility. Please try again.",
         variant: "destructive",
       });
     }
@@ -94,6 +125,7 @@ const AdminBets = () => {
               <TableHead>Pool Size</TableHead>
               <TableHead>End Time</TableHead>
               <TableHead>Status</TableHead>
+              <TableHead>Visibility</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -118,6 +150,18 @@ const AdminBets = () => {
                   ) : (
                     <span className="text-yellow-500">Ended</span>
                   )}
+                </TableCell>
+                <TableCell>
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      id={`hide-${bet.id}`}
+                      checked={!bet.isHidden}
+                      onCheckedChange={() => handleToggleHidden(bet.id, bet.isHidden)}
+                    />
+                    <Label htmlFor={`hide-${bet.id}`}>
+                      {bet.isHidden ? 'Hidden' : 'Visible'}
+                    </Label>
+                  </div>
                 </TableCell>
                 <TableCell>
                   {!bet.isResolved && new Date(bet.endTime) <= new Date() && (

@@ -54,6 +54,7 @@ export type Database = {
           end_time: string
           event_name: string
           id: string
+          is_hidden: boolean
           is_resolved: boolean
           max_bet_size: number | null
           option_a: string
@@ -69,6 +70,7 @@ export type Database = {
           end_time: string
           event_name: string
           id?: string
+          is_hidden?: boolean
           is_resolved?: boolean
           max_bet_size?: number | null
           option_a: string
@@ -84,6 +86,7 @@ export type Database = {
           end_time?: string
           event_name?: string
           id?: string
+          is_hidden?: boolean
           is_resolved?: boolean
           max_bet_size?: number | null
           option_a?: string

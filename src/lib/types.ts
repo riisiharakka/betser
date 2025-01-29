@@ -10,6 +10,7 @@ export interface Bet {
   winner?: string | null;
   createdBy: string;
   maxBetSize?: number | null;
+  isHidden: boolean;
 }
 
 export interface BetPlacement {
