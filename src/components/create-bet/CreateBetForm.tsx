@@ -27,6 +27,7 @@ const createBetSchema = z.object({
     message: "End time must be in the future",
   }),
   maxBetSize: z.string().optional(),
+  currency: z.string().min(1, "Currency is required").default("€"),
 });
 
 export type CreateBetFormValues = z.infer<typeof createBetSchema>;
@@ -43,6 +44,7 @@ export const CreateBetForm = () => {
       optionB: "",
       endTime: new Date(Date.now() + 24 * 60 * 60 * 1000), // Default to tomorrow
       maxBetSize: "",
+      currency: "€",
     },
   });
 
@@ -72,6 +74,7 @@ export const CreateBetForm = () => {
         is_resolved: false,
         created_by: sessionData.session.user.id,
         max_bet_size: maxBetSize,
+        currency: data.currency,
       });
 
       if (error) throw error;
@@ -168,6 +171,26 @@ export const CreateBetForm = () => {
               </FormControl>
               <FormDescription>
                 Leave empty for no maximum bet size limit
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="currency"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Currency</FormLabel>
+              <FormControl>
+                <Input 
+                  placeholder="€, beers, coffees, etc." 
+                  {...field} 
+                />
+              </FormControl>
+              <FormDescription>
+                Enter € for euros or any custom unit (e.g., beers, coffees)
               </FormDescription>
               <FormMessage />
             </FormItem>

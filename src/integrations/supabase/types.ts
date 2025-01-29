@@ -51,6 +51,7 @@ export type Database = {
         Row: {
           created_at: string
           created_by: string
+          currency: string
           end_time: string
           event_name: string
           id: string
@@ -67,6 +68,7 @@ export type Database = {
         Insert: {
           created_at?: string
           created_by: string
+          currency?: string
           end_time: string
           event_name: string
           id?: string
@@ -83,6 +85,7 @@ export type Database = {
         Update: {
           created_at?: string
           created_by?: string
+          currency?: string
           end_time?: string
           event_name?: string
           id?: string

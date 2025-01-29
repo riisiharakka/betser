@@ -98,7 +98,8 @@ export const BetList = ({ user }: BetListProps) => {
               winner: bet.winner,
               createdBy: bet.createdBy,
               maxBetSize: bet.maxBetSize,
-              isHidden: bet.isHidden
+              isHidden: bet.isHidden,
+              currency: bet.currency
             }}
             user={user}
           />

@@ -11,6 +11,7 @@ export interface Bet {
   createdBy: string;
   maxBetSize?: number | null;
   isHidden: boolean;
+  currency: string;
 }
 
 export interface BetPlacement {
