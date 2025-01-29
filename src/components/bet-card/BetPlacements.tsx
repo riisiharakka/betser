@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/dialog";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Clock, Archive, Check, X, User, DollarSign } from "lucide-react";
+import { Clock, Archive, Check, X, User } from "lucide-react";
 
 interface BetPlacementsProps {
   betId: string;
@@ -29,6 +29,7 @@ interface BetPlacement {
     end_time: string;
     is_resolved: boolean;
     winner: string | null;
+    currency: string;
   };
   username: string | null;
 }
@@ -46,7 +47,8 @@ export const BetPlacements = ({ betId, isOpen, onClose }: BetPlacementsProps) =>
             option_b,
             end_time,
             is_resolved,
-            winner
+            winner,
+            currency
           )
         `)
         .eq("bet_id", betId)
@@ -127,18 +129,12 @@ export const BetPlacements = ({ betId, isOpen, onClose }: BetPlacementsProps) =>
                     {placement.option === 'A' ? placement.bets.option_a : placement.bets.option_b}
                   </span>
                   <span className="text-sm text-muted-foreground">
-                    €{placement.amount.toFixed(2)}
+                    {placement.amount.toFixed(2)} {placement.bets.currency}
                   </span>
                   <div className={`flex items-center gap-1 ${status.color}`}>
                     <status.Icon className="h-4 w-4" />
                     <span className="text-sm">{status.label}</span>
                   </div>
-                  {placement.is_paid && (
-                    <div className="flex items-center gap-1 text-green-500">
-                      <DollarSign className="h-4 w-4" />
-                      <span className="text-sm">Paid</span>
-                    </div>
-                  )}
                 </div>
                 <span className="text-sm text-muted-foreground">
                   {format(new Date(placement.created_at), "HH:mm d.M.")}
