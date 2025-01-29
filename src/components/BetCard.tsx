@@ -47,11 +47,16 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
     queryFn: async () => {
       if (!user || !bet.isResolved) return null;
       
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("money_owed")
         .select("*")
         .eq("event_name", bet.eventName)
         .or(`winner_id.eq.${user.id},debtor_id.eq.${user.id}`);
+      
+      if (error) {
+        console.error("Error fetching money owed:", error);
+        return null;
+      }
       
       console.log("Money owed data for event:", bet.eventName, data);
       return data;
