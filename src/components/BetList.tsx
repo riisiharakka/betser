@@ -39,8 +39,9 @@ export const BetList = ({ user, selectedTypes }: BetListProps) => {
           table: "bet_placements",
         },
         () => {
-          // Also invalidate when bet placements change
+          // Invalidate both bets and user-bet queries when there's a new placement
           queryClient.invalidateQueries({ queryKey: ["bets"] });
+          queryClient.invalidateQueries({ queryKey: ["user-bet"] });
         }
       )
       .subscribe();
