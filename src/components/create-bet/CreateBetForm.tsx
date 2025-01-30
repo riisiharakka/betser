@@ -1,4 +1,3 @@
-import * as React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
@@ -11,23 +10,14 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { DateTimePicker } from "./DateTimePicker";
-import { WagerFields } from "./WagerFields";
-import { DareFields } from "./DareFields";
 
 const createBetSchema = z.object({
-  type: z.enum(["wager", "dare"]),
   eventName: z.string().min(1, "Event name is required"),
   optionA: z.string().min(1, "Option A is required"),
   optionB: z.string().min(1, "Option B is required"),
@@ -37,33 +27,7 @@ const createBetSchema = z.object({
     message: "End time must be in the future",
   }),
   maxBetSize: z.string().optional(),
-  currency: z.string().optional(),
-  stake: z.string().optional(),
-}).superRefine((data, ctx) => {
-  if (data.type === "wager") {
-    if (!data.currency) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Currency is required for wager type",
-        path: ["currency"],
-      });
-    }
-    if (data.stake) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Stake should not be set for wager type",
-        path: ["stake"],
-      });
-    }
-  } else if (data.type === "dare") {
-    if (!data.stake) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Stake is required for dare type",
-        path: ["stake"],
-      });
-    }
-  }
+  currency: z.string().min(1, "Currency is required").default("€"),
 });
 
 export type CreateBetFormValues = z.infer<typeof createBetSchema>;
@@ -75,14 +39,12 @@ export const CreateBetForm = () => {
   const form = useForm<CreateBetFormValues>({
     resolver: zodResolver(createBetSchema),
     defaultValues: {
-      type: "wager",
       eventName: "",
       optionA: "",
       optionB: "",
-      endTime: new Date(Date.now() + 24 * 60 * 60 * 1000),
+      endTime: new Date(Date.now() + 24 * 60 * 60 * 1000), // Default to tomorrow
       maxBetSize: "",
       currency: "€",
-      stake: "",
     },
   });
 
@@ -100,6 +62,8 @@ export const CreateBetForm = () => {
         return;
       }
 
+      const maxBetSize = data.maxBetSize ? Number(data.maxBetSize) : null;
+
       const { error } = await supabase.from("bets").insert({
         event_name: data.eventName,
         option_a: data.optionA,
@@ -109,16 +73,11 @@ export const CreateBetForm = () => {
         pool_b: 0,
         is_resolved: false,
         created_by: sessionData.session.user.id,
-        max_bet_size: data.type === "wager" ? Number(data.maxBetSize) || null : null,
-        currency: data.type === "wager" ? data.currency : "€", // Set default currency for dares
-        type: data.type,
-        stake: data.type === "dare" ? data.stake : null,
+        max_bet_size: maxBetSize,
+        currency: data.currency,
       });
 
-      if (error) {
-        console.error("Supabase error:", error);
-        throw error;
-      }
+      if (error) throw error;
 
       toast({
         title: "Success",
@@ -135,46 +94,9 @@ export const CreateBetForm = () => {
     }
   };
 
-  const betType = form.watch("type");
-
-  // Reset form fields when type changes
-  React.useEffect(() => {
-    if (betType === "wager") {
-      form.setValue("stake", "");
-      form.setValue("currency", "€");
-    } else {
-      form.setValue("maxBetSize", "");
-    }
-  }, [betType, form]);
-
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <FormField
-          control={form.control}
-          name="type"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Type</FormLabel>
-              <Select
-                onValueChange={field.onChange}
-                defaultValue={field.value}
-              >
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select bet type" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="wager">Wager</SelectItem>
-                  <SelectItem value="dare">Dare</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
         <FormField
           control={form.control}
           name="eventName"
@@ -234,11 +156,46 @@ export const CreateBetForm = () => {
           )}
         />
 
-        {betType === "wager" ? (
-          <WagerFields form={form} />
-        ) : (
-          <DareFields form={form} />
-        )}
+        <FormField
+          control={form.control}
+          name="maxBetSize"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Maximum Bet Size (Optional)</FormLabel>
+              <FormControl>
+                <Input 
+                  type="number" 
+                  placeholder="Enter maximum bet size" 
+                  {...field} 
+                />
+              </FormControl>
+              <FormDescription>
+                Leave empty for no maximum bet size limit
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="currency"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Currency</FormLabel>
+              <FormControl>
+                <Input 
+                  placeholder="€, beers, coffees, etc." 
+                  {...field} 
+                />
+              </FormControl>
+              <FormDescription>
+                Enter € for euros or any custom unit (e.g., beers, coffees)
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         <div className="flex gap-4">
           <Button

@@ -62,8 +62,6 @@ export type Database = {
           option_b: string
           pool_a: number
           pool_b: number
-          stake: string | null
-          type: Database["public"]["Enums"]["bet_type"]
           updated_at: string
           winner: string | null
         }
@@ -81,8 +79,6 @@ export type Database = {
           option_b: string
           pool_a?: number
           pool_b?: number
-          stake?: string | null
-          type?: Database["public"]["Enums"]["bet_type"]
           updated_at?: string
           winner?: string | null
         }
@@ -100,8 +96,6 @@ export type Database = {
           option_b?: string
           pool_a?: number
           pool_b?: number
-          stake?: string | null
-          type?: Database["public"]["Enums"]["bet_type"]
           updated_at?: string
           winner?: string | null
         }
@@ -174,7 +168,6 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user"
-      bet_type: "wager" | "dare"
     }
     CompositeTypes: {
       [_ in never]: never
