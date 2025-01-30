@@ -38,14 +38,38 @@ const createBetSchema = z.object({
   maxBetSize: z.string().optional(),
   currency: z.string().optional(),
   stake: z.string().optional(),
-}).refine((data) => {
+}).superRefine((data, ctx) => {
   if (data.type === "wager") {
-    return data.currency !== undefined && data.stake === undefined;
-  } else {
-    return data.stake !== undefined && data.currency === undefined && data.maxBetSize === undefined;
+    if (!data.currency) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Currency is required for wager type",
+        path: ["currency"],
+      });
+    }
+    if (data.stake) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Stake should not be set for wager type",
+        path: ["stake"],
+      });
+    }
+  } else if (data.type === "dare") {
+    if (!data.stake) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Stake is required for dare type",
+        path: ["stake"],
+      });
+    }
+    if (data.currency || data.maxBetSize) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Currency and max bet size should not be set for dare type",
+        path: ["currency"],
+      });
+    }
   }
-}, {
-  message: "Invalid combination of fields for the selected type",
 });
 
 export type CreateBetFormValues = z.infer<typeof createBetSchema>;
@@ -64,6 +88,7 @@ export const CreateBetForm = () => {
       endTime: new Date(Date.now() + 24 * 60 * 60 * 1000),
       maxBetSize: "",
       currency: "€",
+      stake: "",
     },
   });
 
@@ -96,7 +121,10 @@ export const CreateBetForm = () => {
         stake: data.type === "dare" ? data.stake : null,
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Supabase error:", error);
+        throw error;
+      }
 
       toast({
         title: "Success",
@@ -114,6 +142,17 @@ export const CreateBetForm = () => {
   };
 
   const betType = form.watch("type");
+
+  // Reset form fields when type changes
+  React.useEffect(() => {
+    if (betType === "wager") {
+      form.setValue("stake", "");
+      form.setValue("currency", "€");
+    } else {
+      form.setValue("currency", "");
+      form.setValue("maxBetSize", "");
+    }
+  }, [betType, form]);
 
   return (
     <Form {...form}>
