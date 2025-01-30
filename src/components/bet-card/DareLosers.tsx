@@ -7,27 +7,39 @@ interface DareLosersProps {
   winner: string;
 }
 
+interface Loser {
+  userId: string;
+  username: string;
+}
+
 export const DareLosers = ({ betId, winner }: DareLosersProps) => {
   const { data: losers = [] } = useQuery({
     queryKey: ["dare-losers", betId],
     queryFn: async () => {
       const losingOption = winner === 'A' ? 'B' : 'A';
       
-      const { data, error } = await supabase
+      // First, get the losing bet placements
+      const { data: placements, error: placementsError } = await supabase
         .from("bet_placements")
-        .select(`
-          user_id,
-          profiles (
-            username
-          )
-        `)
+        .select("user_id")
         .eq("bet_id", betId)
         .eq("option", losingOption);
 
-      if (error) throw error;
-      return data?.map(loser => ({
-        userId: loser.user_id,
-        username: loser.profiles?.username || 'Anonymous'
+      if (placementsError) throw placementsError;
+      if (!placements?.length) return [];
+
+      // Then, get the profiles for these users
+      const { data: profiles, error: profilesError } = await supabase
+        .from("profiles")
+        .select("id, username")
+        .in("id", placements.map(p => p.user_id));
+
+      if (profilesError) throw profilesError;
+
+      // Map the profiles to our desired format
+      return profiles?.map(profile => ({
+        userId: profile.id,
+        username: profile.username || 'Anonymous'
       })) || [];
     },
     enabled: !!betId && !!winner,
