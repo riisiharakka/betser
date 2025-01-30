@@ -3,6 +3,7 @@ import { BetList } from "@/components/BetList";
 import { useToast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
 import type { User } from "@supabase/supabase-js";
+import { useState } from "react";
 
 interface IndexProps {
   user: User | null;
@@ -11,6 +12,7 @@ interface IndexProps {
 const Index = ({ user }: IndexProps) => {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const [selectedTypes, setSelectedTypes] = useState<Set<string>>(new Set(['wager', 'dare']));
   
   const handleCreateBet = () => {
     if (!user) {
@@ -22,6 +24,18 @@ const Index = ({ user }: IndexProps) => {
       return;
     }
     navigate("/create-bet");
+  };
+
+  const toggleType = (type: string) => {
+    const newTypes = new Set(selectedTypes);
+    if (newTypes.has(type)) {
+      if (newTypes.size > 1) { // Prevent deselecting all types
+        newTypes.delete(type);
+      }
+    } else {
+      newTypes.add(type);
+    }
+    setSelectedTypes(newTypes);
   };
 
   return (
@@ -42,8 +56,25 @@ const Index = ({ user }: IndexProps) => {
             Create New Bet
           </Button>
         </div>
+
+        <div className="flex gap-4 mb-8">
+          <Button
+            variant={selectedTypes.has('wager') ? "default" : "outline"}
+            onClick={() => toggleType('wager')}
+            className="flex-1 sm:flex-none"
+          >
+            Wagers
+          </Button>
+          <Button
+            variant={selectedTypes.has('dare') ? "default" : "outline"}
+            onClick={() => toggleType('dare')}
+            className="flex-1 sm:flex-none"
+          >
+            Dares
+          </Button>
+        </div>
         
-        <BetList user={user} />
+        <BetList user={user} selectedTypes={Array.from(selectedTypes)} />
       </div>
     </div>
   );

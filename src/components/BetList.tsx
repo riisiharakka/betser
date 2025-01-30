@@ -8,9 +8,10 @@ import { useQueryClient } from "@tanstack/react-query";
 
 interface BetListProps {
   user: User | null;
+  selectedTypes: string[];
 }
 
-export const BetList = ({ user }: BetListProps) => {
+export const BetList = ({ user, selectedTypes }: BetListProps) => {
   const queryClient = useQueryClient();
   const { data: bets, isLoading, error } = useBets();
 
@@ -78,8 +79,8 @@ export const BetList = ({ user }: BetListProps) => {
     );
   }
 
-  // Filter out hidden bets from the main page
-  const visibleBets = bets.filter(bet => !bet.isHidden);
+  // Filter out hidden bets and apply type filter
+  const visibleBets = bets.filter(bet => !bet.isHidden && selectedTypes.includes(bet.type));
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 [&>*]:w-full">

@@ -4,6 +4,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import type { User } from "@supabase/supabase-js";
 import { useState } from "react";
 import { BetOptions } from "./bet-card/BetOptions";
@@ -125,6 +126,11 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
     <>
       <Card className="max-w-2xl mx-auto bg-[#0A0B0F] border-gray-800">
         <CardHeader>
+          <div className="flex items-center gap-2 mb-2">
+            <Badge variant={bet.type === 'wager' ? "default" : "secondary"}>
+              {bet.type === 'wager' ? 'Wager' : 'Dare'}
+            </Badge>
+          </div>
           <CardTitle className="text-2xl">{bet.eventName}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-8">
