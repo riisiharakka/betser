@@ -99,7 +99,9 @@ export const BetList = ({ user }: BetListProps) => {
               createdBy: bet.createdBy,
               maxBetSize: bet.maxBetSize,
               isHidden: bet.isHidden,
-              currency: bet.currency
+              currency: bet.currency,
+              type: bet.type,
+              stake: bet.stake
             }}
             user={user}
           />
