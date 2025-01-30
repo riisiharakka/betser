@@ -2,7 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
 const SUPABASE_URL = "https://puzfettloxhfiuflxidp.supabase.co";
-const SUPABASE_ANON_KEY = "your-anon-key-here"; // Replace with your anon key from the API settings
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1emZldHRsb3hoZml1Zmx4aWRwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzc4MDIwNDcsImV4cCI6MjA1MzM3ODA0N30.6oYiBSi7akOk_m8gN6P4ULTFtZfDdZtGbxJeMSfwLRs"; // Replace with your anon key from the API settings
 
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_ANON_KEY, {
   auth: {
