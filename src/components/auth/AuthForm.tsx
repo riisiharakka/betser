@@ -21,8 +21,8 @@ export function AuthForm() {
   const [searchParams] = useSearchParams();
 
   useEffect(() => {
-    // Check if we have a password reset token
-    if (searchParams.has("type") && searchParams.get("type") === "recovery") {
+    // Check if we have a password reset code
+    if (searchParams.has("code")) {
       setIsResetPassword(true);
       setIsLogin(false);
       setIsForgotPassword(false);
@@ -117,6 +117,8 @@ export function AuthForm() {
       });
       setIsResetPassword(false);
       setIsLogin(true);
+      // Clear the code from the URL
+      window.history.replaceState({}, document.title, "/auth");
     } catch (error: any) {
       toast({
         title: "Error",
