@@ -43,6 +43,19 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
     enabled: !!user,
   });
 
+  const { data: participantCount = 0 } = useQuery({
+    queryKey: ["bet-participants", bet.id],
+    queryFn: async () => {
+      const { count } = await supabase
+        .from("bet_placements")
+        .select("*", { count: 'exact', head: true })
+        .eq("bet_id", bet.id);
+      
+      return count || 0;
+    },
+    enabled: bet.type === 'dare',
+  });
+
   const handleTimeEnd = () => {
     setIsEnded(true);
   };
@@ -126,6 +139,8 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
             eventName={bet.eventName}
             maxBetSize={bet.maxBetSize}
             currency={bet.currency}
+            type={bet.type}
+            stake={bet.stake}
           />
 
           <BetInformation
@@ -135,6 +150,8 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
             endTime={bet.endTime}
             onTimeEnd={handleTimeEnd}
             onShowPlacements={() => setShowPlacements(true)}
+            type={bet.type}
+            participantCount={participantCount}
           />
 
           {!user && (
@@ -156,13 +173,15 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
             optionB={bet.optionB}
           />
 
-          <MoneyOwedDetails
-            eventName={bet.eventName}
-            isResolved={bet.isResolved}
-            user={user}
-            existingBet={existingBet}
-            currency={bet.currency}
-          />
+          {bet.type !== 'dare' && (
+            <MoneyOwedDetails
+              eventName={bet.eventName}
+              isResolved={bet.isResolved}
+              user={user}
+              existingBet={existingBet}
+              currency={bet.currency}
+            />
+          )}
         </CardContent>
       </Card>
 

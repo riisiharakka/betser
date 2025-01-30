@@ -20,6 +20,8 @@ interface BetOptionsProps {
   eventName: string;
   maxBetSize?: number | null;
   currency: string;
+  type?: string;
+  stake?: string | null;
 }
 
 export const BetOptions = ({
@@ -33,6 +35,8 @@ export const BetOptions = ({
   eventName,
   maxBetSize,
   currency,
+  type,
+  stake,
 }: BetOptionsProps) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedBetOption, setSelectedBetOption] = useState<string | null>(null);
@@ -56,10 +60,8 @@ export const BetOptions = ({
     const value = e.target.value;
     setAmount(value);
     
-    // Clear error when user starts typing
     if (error) setError(null);
     
-    // Validate against maxBetSize if it exists
     if (value && maxBetSize && Number(value) > maxBetSize) {
       setError(`Maximum bet size is ${maxBetSize} ${currency}`);
     }
@@ -81,33 +83,37 @@ export const BetOptions = ({
     }
   };
 
+  const isDare = type === 'dare';
+
   return (
     <>
       <div className="space-y-6">
-        <div className="text-2xl font-medium text-center">Bet on</div>
+        <div className="text-2xl font-medium text-center">
+          Bet on {stake && isDare ? stake : ''}
+        </div>
         
         <div className="grid grid-cols-2 gap-8">
           <div className="space-y-4">
-            <span className="text-xl block text-center">{optionA}</span>
+            {!isDare && <span className="text-xl block text-center">{optionA}</span>}
             <Button
               onClick={() => handleBetClick("A")}
               variant={selectedOption === "A" ? "default" : "outline"}
               disabled={isDisabled}
               className="w-full py-6 text-lg"
             >
-              {getOdds(poolA)}x
+              {isDare ? optionA : `${getOdds(poolA)}x`}
             </Button>
           </div>
 
           <div className="space-y-4">
-            <span className="text-xl block text-center">{optionB}</span>
+            {!isDare && <span className="text-xl block text-center">{optionB}</span>}
             <Button
               onClick={() => handleBetClick("B")}
               variant={selectedOption === "B" ? "default" : "outline"}
               disabled={isDisabled}
               className="w-full py-6 text-lg"
             >
-              {getOdds(poolB)}x
+              {isDare ? optionB : `${getOdds(poolB)}x`}
             </Button>
           </div>
         </div>
@@ -125,30 +131,32 @@ export const BetOptions = ({
                 {selectedBetOption === "A" ? optionA : optionB}
               </span>
             </p>
-            <div className="space-y-2">
-              <div className="space-y-1">
-                <label className="text-lg">
-                  Bet Amount ({currency})
-                </label>
-                {maxBetSize && (
-                  <div className="text-sm text-muted-foreground">
-                    Max: {maxBetSize} {currency}
-                  </div>
+            {!isDare && (
+              <div className="space-y-2">
+                <div className="space-y-1">
+                  <label className="text-lg">
+                    Bet Amount ({currency})
+                  </label>
+                  {maxBetSize && (
+                    <div className="text-sm text-muted-foreground">
+                      Max: {maxBetSize} {currency}
+                    </div>
+                  )}
+                </div>
+                <Input
+                  type="number"
+                  value={amount}
+                  onChange={handleAmountChange}
+                  className="bg-background"
+                  min="0"
+                  step="0.01"
+                  max={maxBetSize || undefined}
+                />
+                {error && (
+                  <p className="text-sm text-destructive mt-1">{error}</p>
                 )}
               </div>
-              <Input
-                type="number"
-                value={amount}
-                onChange={handleAmountChange}
-                className="bg-background"
-                min="0"
-                step="0.01"
-                max={maxBetSize || undefined}
-              />
-              {error && (
-                <p className="text-sm text-destructive mt-1">{error}</p>
-              )}
-            </div>
+            )}
           </div>
           <DialogFooter className="gap-2">
             <Button
@@ -163,7 +171,7 @@ export const BetOptions = ({
             </Button>
             <Button
               onClick={handleConfirmBet}
-              disabled={!amount || Number(amount) <= 0 || !!error}
+              disabled={!isDare && (!amount || Number(amount) <= 0 || !!error)}
               className="flex-1"
             >
               Confirm Bet

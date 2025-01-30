@@ -48,7 +48,8 @@ export const BetPlacements = ({ betId, isOpen, onClose }: BetPlacementsProps) =>
             end_time,
             is_resolved,
             winner,
-            currency
+            currency,
+            type
           )
         `)
         .eq("bet_id", betId)
@@ -104,6 +105,8 @@ export const BetPlacements = ({ betId, isOpen, onClose }: BetPlacementsProps) =>
     }
   };
 
+  const isDare = placements[0]?.bets?.type === 'dare';
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="bg-[#0A0B0F] text-white">
@@ -128,9 +131,11 @@ export const BetPlacements = ({ betId, isOpen, onClose }: BetPlacementsProps) =>
                   <span className="text-sm font-medium">
                     {placement.option === 'A' ? placement.bets.option_a : placement.bets.option_b}
                   </span>
-                  <span className="text-sm text-muted-foreground">
-                    {placement.amount.toFixed(2)} {placement.bets.currency}
-                  </span>
+                  {!isDare && (
+                    <span className="text-sm text-muted-foreground">
+                      {placement.amount.toFixed(2)} {placement.bets.currency}
+                    </span>
+                  )}
                   <div className={`flex items-center gap-1 ${status.color}`}>
                     <status.Icon className="h-4 w-4" />
                     <span className="text-sm">{status.label}</span>
