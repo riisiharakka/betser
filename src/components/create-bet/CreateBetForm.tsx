@@ -63,13 +63,6 @@ const createBetSchema = z.object({
         path: ["stake"],
       });
     }
-    if (data.currency || data.maxBetSize) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Currency and max bet size should not be set for dare type",
-        path: ["currency"],
-      });
-    }
   }
 });
 
@@ -117,7 +110,7 @@ export const CreateBetForm = () => {
         is_resolved: false,
         created_by: sessionData.session.user.id,
         max_bet_size: data.type === "wager" ? Number(data.maxBetSize) || null : null,
-        currency: data.type === "wager" ? data.currency : null,
+        currency: data.type === "wager" ? data.currency : "€", // Set default currency for dares
         type: data.type,
         stake: data.type === "dare" ? data.stake : null,
       });
@@ -150,7 +143,6 @@ export const CreateBetForm = () => {
       form.setValue("stake", "");
       form.setValue("currency", "€");
     } else {
-      form.setValue("currency", "");
       form.setValue("maxBetSize", "");
     }
   }, [betType, form]);
