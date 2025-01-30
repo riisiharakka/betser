@@ -12,6 +12,7 @@ import { BetPlacements } from "./bet-card/BetPlacements";
 import { BetInformation } from "./bet-card/BetInformation";
 import { BetStatus } from "./bet-card/BetStatus";
 import { MoneyOwedDetails } from "./bet-card/MoneyOwedDetails";
+import { DareLosers } from "./bet-card/DareLosers";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -178,6 +179,10 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
             optionA={bet.optionA}
             optionB={bet.optionB}
           />
+
+          {bet.type === 'dare' && bet.isResolved && bet.winner && (
+            <DareLosers betId={bet.id} winner={bet.winner} />
+          )}
 
           {bet.type !== 'dare' && (
             <MoneyOwedDetails
