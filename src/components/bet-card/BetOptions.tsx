@@ -5,6 +5,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
@@ -68,19 +69,32 @@ export const BetOptions = ({
   };
 
   const handleConfirmBet = () => {
-    if (selectedBetOption && amount) {
-      const betAmount = Number(amount);
-      if (maxBetSize && betAmount > maxBetSize) {
-        setError(`Maximum bet size is ${maxBetSize} ${currency}`);
-        return;
-      }
-      
-      onSelectOption(selectedBetOption, betAmount);
+    if (!selectedBetOption) return;
+
+    const isDare = type === 'dare';
+    
+    if (isDare) {
+      // For dares, we don't need an amount
+      onSelectOption(selectedBetOption, 0);
       setIsDialogOpen(false);
-      setAmount("");
       setSelectedBetOption(null);
-      setError(null);
+      return;
     }
+
+    // For wagers, validate amount
+    if (!amount) return;
+    
+    const betAmount = Number(amount);
+    if (maxBetSize && betAmount > maxBetSize) {
+      setError(`Maximum bet size is ${maxBetSize} ${currency}`);
+      return;
+    }
+    
+    onSelectOption(selectedBetOption, betAmount);
+    setIsDialogOpen(false);
+    setAmount("");
+    setSelectedBetOption(null);
+    setError(null);
   };
 
   const isDare = type === 'dare';
@@ -123,10 +137,14 @@ export const BetOptions = ({
         <DialogContent className="bg-[#0A0B0F] border-gray-800">
           <DialogHeader>
             <DialogTitle className="text-2xl">Place Your Bet</DialogTitle>
+            <DialogDescription>
+              {isDare ? "Join this dare by selecting your option" : "Place your bet on this event"}
+            </DialogDescription>
           </DialogHeader>
           <div className="py-6">
             <p className="text-muted-foreground mb-6">
-              Place your bet on <span className="font-bold">{eventName}</span> for option{" "}
+              {isDare ? "Join" : "Place your bet on"}{" "}
+              <span className="font-bold">{eventName}</span> for option{" "}
               <span className="font-bold">
                 {selectedBetOption === "A" ? optionA : optionB}
               </span>
