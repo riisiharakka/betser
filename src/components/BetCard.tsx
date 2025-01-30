@@ -5,6 +5,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 import type { User } from "@supabase/supabase-js";
 import { useState } from "react";
 import { BetOptions } from "./bet-card/BetOptions";
@@ -181,7 +182,10 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
           />
 
           {bet.type === 'dare' && bet.isResolved && bet.winner && (
-            <DareLosers betId={bet.id} winner={bet.winner} />
+            <>
+              <Separator className="my-4" />
+              <DareLosers betId={bet.id} winner={bet.winner} />
+            </>
           )}
 
           {bet.type !== 'dare' && (
