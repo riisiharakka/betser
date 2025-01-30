@@ -37,25 +37,9 @@ const createBetSchema = z.object({
     message: "End time must be in the future",
   }),
   maxBetSize: z.string().optional(),
-  currency: z.string().optional(),
   stake: z.string().optional(),
 }).superRefine((data, ctx) => {
-  if (data.type === "wager") {
-    if (!data.currency) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Currency is required for wager type",
-        path: ["currency"],
-      });
-    }
-    if (data.stake) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Stake should not be set for wager type",
-        path: ["stake"],
-      });
-    }
-  } else if (data.type === "dare") {
+  if (data.type === "dare") {
     if (!data.stake) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
@@ -81,7 +65,6 @@ export const CreateBetForm = () => {
       optionB: "",
       endTime: new Date(Date.now() + 24 * 60 * 60 * 1000),
       maxBetSize: "",
-      currency: "€",
       stake: "",
     },
   });
@@ -110,7 +93,7 @@ export const CreateBetForm = () => {
         is_resolved: false,
         created_by: sessionData.session.user.id,
         max_bet_size: data.type === "wager" ? Number(data.maxBetSize) || null : null,
-        currency: data.type === "wager" ? data.currency : "€", // Set default currency for dares
+        currency: '€', // Always use default currency for wagers
         type: data.type,
         stake: data.type === "dare" ? data.stake : null,
       });
@@ -141,9 +124,6 @@ export const CreateBetForm = () => {
   React.useEffect(() => {
     if (betType === "wager") {
       form.setValue("stake", "");
-      form.setValue("currency", "€");
-    } else {
-      form.setValue("maxBetSize", "");
     }
   }, [betType, form]);
 
