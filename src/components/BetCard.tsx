@@ -15,7 +15,7 @@ import { BetStatus } from "./bet-card/BetStatus";
 import { MoneyOwedDetails } from "./bet-card/MoneyOwedDetails";
 import { DareLosers } from "./bet-card/DareLosers";
 import { useToast } from "@/hooks/use-toast";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Bet } from "@/lib/types";
 
@@ -28,6 +28,7 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
   const [isEnded, setIsEnded] = useState(false);
   const [showPlacements, setShowPlacements] = useState(false);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const { data: existingBet } = useQuery({
     queryKey: ["user-bet", bet.id, user?.id],
@@ -106,6 +107,13 @@ export const BetCard = ({ bet, user }: BetCardProps) => {
         }
         return;
       }
+
+      // Immediately invalidate relevant queries after successful bet placement
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["bets"] }),
+        queryClient.invalidateQueries({ queryKey: ["user-bet", bet.id, user.id] }),
+        queryClient.invalidateQueries({ queryKey: ["bet-participants", bet.id] })
+      ]);
 
       toast({
         title: "Success",
