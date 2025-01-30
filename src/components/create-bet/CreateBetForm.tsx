@@ -75,7 +75,7 @@ export const CreateBetForm = () => {
   const form = useForm<CreateBetFormValues>({
     resolver: zodResolver(createBetSchema),
     defaultValues: {
-      type: "wager",
+      type: "dare",
       eventName: "",
       optionA: "",
       optionB: "",
