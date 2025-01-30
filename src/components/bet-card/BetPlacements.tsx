@@ -30,6 +30,7 @@ interface BetPlacement {
     is_resolved: boolean;
     winner: string | null;
     currency: string;
+    type: 'wager' | 'dare';
   };
   username: string | null;
 }

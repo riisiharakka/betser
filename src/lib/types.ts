@@ -12,6 +12,8 @@ export interface Bet {
   maxBetSize?: number | null;
   isHidden: boolean;
   currency: string;
+  type: 'wager' | 'dare';
+  stake?: string | null;
 }
 
 export interface BetPlacement {
