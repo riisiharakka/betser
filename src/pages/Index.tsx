@@ -12,7 +12,8 @@ interface IndexProps {
 const Index = ({ user }: IndexProps) => {
   const { toast } = useToast();
   const navigate = useNavigate();
-  const [selectedTypes, setSelectedTypes] = useState<Set<string>>(new Set(['wager', 'dare']));
+  // Change default to empty string to show no bets initially until user selects a type
+  const [selectedType, setSelectedType] = useState<string>("");
   
   const handleCreateBet = () => {
     if (!user) {
@@ -26,16 +27,8 @@ const Index = ({ user }: IndexProps) => {
     navigate("/create-bet");
   };
 
-  const toggleType = (type: string) => {
-    const newTypes = new Set(selectedTypes);
-    if (newTypes.has(type)) {
-      if (newTypes.size > 1) { // Prevent deselecting all types
-        newTypes.delete(type);
-      }
-    } else {
-      newTypes.add(type);
-    }
-    setSelectedTypes(newTypes);
+  const selectType = (type: string) => {
+    setSelectedType(type === selectedType ? "" : type);
   };
 
   return (
@@ -57,24 +50,27 @@ const Index = ({ user }: IndexProps) => {
           </Button>
         </div>
 
-        <div className="flex gap-4 mb-8">
+        <div className="flex justify-center gap-4 mb-8 border-y border-border py-4">
           <Button
-            variant={selectedTypes.has('wager') ? "default" : "outline"}
-            onClick={() => toggleType('wager')}
-            className="flex-1 sm:flex-none"
-          >
-            Wagers
-          </Button>
-          <Button
-            variant={selectedTypes.has('dare') ? "default" : "outline"}
-            onClick={() => toggleType('dare')}
-            className="flex-1 sm:flex-none"
+            variant={selectedType === 'dare' ? "default" : "ghost"}
+            onClick={() => selectType('dare')}
+            className="w-32"
           >
             Dares
           </Button>
+          <Button
+            variant={selectedType === 'wager' ? "default" : "ghost"}
+            onClick={() => selectType('wager')}
+            className="w-32"
+          >
+            Wagers
+          </Button>
         </div>
         
-        <BetList user={user} selectedTypes={Array.from(selectedTypes)} />
+        <BetList 
+          user={user} 
+          selectedTypes={selectedType ? [selectedType] : ['wager', 'dare']} 
+        />
       </div>
     </div>
   );
