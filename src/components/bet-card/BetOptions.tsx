@@ -103,7 +103,7 @@ export const BetOptions = ({
     <>
       <div className="space-y-6">
         <div className="text-2xl font-medium text-center">
-          Bet on {stake && isDare ? stake : ''}
+          Bet: {stake && isDare ? stake : ''}
         </div>
         
         <div className="grid grid-cols-2 gap-8">

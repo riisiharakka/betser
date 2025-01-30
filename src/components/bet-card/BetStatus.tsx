@@ -10,7 +10,7 @@ export const BetStatus = ({ isResolved, winner, optionA, optionB }: BetStatusPro
 
   return (
     <p className="text-lg text-muted-foreground text-center">
-      Bet: {winner === "A" ? optionA : optionB}
+      Winning option: {winner === "A" ? optionA : optionB}
     </p>
   );
 };
