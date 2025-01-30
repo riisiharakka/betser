@@ -166,8 +166,8 @@ export const CreateBetForm = () => {
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="wager">Wager</SelectItem>
                   <SelectItem value="dare">Dare</SelectItem>
+                  <SelectItem value="wager">Wager</SelectItem>
                 </SelectContent>
               </Select>
               <FormMessage />
@@ -182,7 +182,7 @@ export const CreateBetForm = () => {
             <FormItem>
               <FormLabel>Event Name</FormLabel>
               <FormControl>
-                <Input placeholder="Enter event name" {...field} />
+                <Input placeholder="Enter event name (e.g. Rangers win)" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
